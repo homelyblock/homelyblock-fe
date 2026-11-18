@@ -6,7 +6,7 @@ import { getServerAccessToken } from "@/features/auth/server-session";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "LivingSpace — Your Society. Better Managed.",
+    absolute: "HomelyBlock — Your Society. Better Managed.",
   },
   description:
     "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",

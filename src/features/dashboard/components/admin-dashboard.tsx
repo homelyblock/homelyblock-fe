@@ -98,7 +98,7 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
           <Metric label="Paid bills" value={data.maintenance.paidInvoiceCount} />
         </div>
         <p className="text-xs text-muted-foreground">
-          Amounts are records. Payments are entered here after they are collected outside LivingSpace.
+          Amounts are records. Payments are entered here after they are collected outside HomelyBlock.
         </p>
       </DashboardSection>
 

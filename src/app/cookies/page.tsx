@@ -5,7 +5,7 @@ import { LegalReviewNotice, PolicySection } from "@/features/marketing/legal-not
 
 export const metadata = publicPageMetadata({
   title: "Cookie policy",
-  description: "LivingSpace uses essential sign-in cookies and does not use analytics or marketing cookies.",
+  description: "HomelyBlock uses essential sign-in cookies and does not use analytics or marketing cookies.",
   path: "/cookies",
 });
 

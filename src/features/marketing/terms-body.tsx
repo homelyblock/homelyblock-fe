@@ -7,7 +7,7 @@ export function TermsBody() {
       <OperatorBlock />
       <h2>Eligibility and accounts</h2>
       <p>
-        LivingSpace is for adults managing or living in a residential society. Creating an account does not by itself give access to a society. You agree to give accurate information and to keep your sign-in confidential. You are responsible for activity under your account until you tell the operator it is no longer in your control.
+        HomelyBlock is for adults managing or living in a residential society. Creating an account does not by itself give access to a society. You agree to give accurate information and to keep your sign-in confidential. You are responsible for activity under your account until you tell the operator it is no longer in your control.
       </p>
       <h2>Roles</h2>
       <ul>
@@ -21,11 +21,11 @@ export function TermsBody() {
       </p>
       <h2>Content and files</h2>
       <p>
-        You are responsible for notices, visitor details, complaints, household records, and files you submit. Do not upload information you are not allowed to share. Complaint image storage is off unless the operator enables it. LivingSpace may remove access when misuse is found. It does not review every notice before publication.
+        You are responsible for notices, visitor details, complaints, household records, and files you submit. Do not upload information you are not allowed to share. Complaint image storage is off unless the operator enables it. HomelyBlock may remove access when misuse is found. It does not review every notice before publication.
       </p>
       <h2>Payments</h2>
       <p>
-        Maintenance amounts in LivingSpace are records. The platform does not collect money, confirm a bank transfer or UPI payment, or issue refunds. There is no subscription checkout in the product. An authorized administrator can record a payment collected outside the app and can reverse that record under the billing rules. Any refund of money is between the society and the resident, outside this software. If the operator later charges a fee, that fee needs its own published terms. None are configured now.
+        Maintenance amounts in HomelyBlock are records. The platform does not collect money, confirm a bank transfer or UPI payment, or issue refunds. There is no subscription checkout in the product. An authorized administrator can record a payment collected outside the app and can reverse that record under the billing rules. Any refund of money is between the society and the resident, outside this software. If the operator later charges a fee, that fee needs its own published terms. None are configured now.
       </p>
       <h2>Suspension</h2>
       <p>
@@ -33,11 +33,11 @@ export function TermsBody() {
       </p>
       <h2>Availability and other services</h2>
       <p>
-        The service can be unavailable during maintenance or when a dependency is down. Sign-in is provided by the configured authentication service. Email leaves the application only when the operator has configured a mail provider. LivingSpace does not promise uninterrupted access or delivery of a message.
+        The service can be unavailable during maintenance or when a dependency is down. Sign-in is provided by the configured authentication service. Email leaves the application only when the operator has configured a mail provider. HomelyBlock does not promise uninterrupted access or delivery of a message.
       </p>
       <h2>Intellectual property</h2>
       <p>
-        The LivingSpace application, its layout, and its copy belong to the operator once that operator is identified. Society records entered by users remain subject to the rights of the people who provided them. Do not copy the product or scrape society data.
+        The HomelyBlock application, its layout, and its copy belong to the operator once that operator is identified. Society records entered by users remain subject to the rights of the people who provided them. Do not copy the product or scrape society data.
       </p>
       <h2>Liability</h2>
       <p>

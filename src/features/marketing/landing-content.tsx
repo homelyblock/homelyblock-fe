@@ -4,7 +4,7 @@ const features = [
   ["Resident management", "Assign memberships and roles. Access stays limited to the societies a person belongs to."],
   ["Society and unit management", "Record buildings, units, and which home a membership is linked to."],
   ["Maintenance and billing", "Configure dues, generate bills, and publish them to the relevant homes."],
-  ["Payment records", "Record cash, UPI, bank transfer, cheque, or other payments collected outside LivingSpace."],
+  ["Payment records", "Record cash, UPI, bank transfer, cheque, or other payments collected outside HomelyBlock."],
   ["Notices and announcements", "Draft and publish notices for a society, building, or unit."],
   ["Complaints", "Raise a society complaint and follow its status. This is separate from platform support."],
   ["Visitor management", "Register expected visitors and walk-ins, then record approval, check-in, and check-out."],
@@ -62,7 +62,7 @@ export function LandingContent({ signedIn }: { signedIn: boolean }) {
         <SectionIntro
           eyebrow="The problem"
           title="Society work gets scattered long before it gets solved."
-          description="LivingSpace is for the ordinary records a society already keeps. It does not add a payment gateway, gate hardware, or WhatsApp alerts."
+          description="HomelyBlock is for the ordinary records a society already keeps. It does not add a payment gateway, gate hardware, or WhatsApp alerts."
         />
         <ul className="mt-8 grid gap-3 sm:grid-cols-2">
           {problems.map((problem) => (
@@ -156,7 +156,7 @@ export function LandingContent({ signedIn }: { signedIn: boolean }) {
           <div className="mt-8 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-background">
             {[
               ["Can anyone join a society by signing up?", "No. A resident account does not see society records until an administrator connects that account and activates the membership."],
-              ["Does LivingSpace collect maintenance money?", "No. Bills and payments are records. The platform does not run a payment gateway."],
+              ["Does HomelyBlock collect maintenance money?", "No. Bills and payments are records. The platform does not run a payment gateway."],
               ["Will I get an email for every notice?", "No. Society updates are read in the app. Account emails, such as password reset, come from the sign-in service."],
             ].map(([question, answer]) => (
               <details key={question} className="px-5 py-4">

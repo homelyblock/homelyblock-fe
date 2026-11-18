@@ -19,14 +19,14 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: siteUrl } : {}),
-  title: "LivingSpace",
+  title: "HomelyBlock",
   description:
     "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",
   openGraph: {
-    title: "LivingSpace",
+    title: "HomelyBlock",
     description:
       "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",
-    siteName: "LivingSpace",
+    siteName: "HomelyBlock",
     locale: "en_IN",
     type: "website",
   },

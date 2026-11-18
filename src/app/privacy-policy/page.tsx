@@ -4,7 +4,7 @@ import { PrivacyPolicyBody } from "@/features/marketing/privacy-body";
 
 export const metadata = publicPageMetadata({
   title: "Privacy policy",
-  description: "How LivingSpace stores account, society, household, billing, complaint, and visitor information.",
+  description: "How HomelyBlock stores account, society, household, billing, complaint, and visitor information.",
   path: "/privacy-policy",
 });
 
@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
   return (
     <PublicPage
       title="Privacy policy"
-      description="What LivingSpace stores, who can see it, and which Indian privacy duties are already in force."
+      description="What HomelyBlock stores, who can see it, and which Indian privacy duties are already in force."
     >
       <PrivacyPolicyBody />
     </PublicPage>

@@ -23,7 +23,7 @@ export function OperatorBlock() {
         </p>
       ) : (
         <p>
-          The registered legal name, address, GSTIN, and CIN of the organisation that operates this deployment are not configured. Do not treat any company name or office address as belonging to LivingSpace until the operator publishes them. This is a launch blocker.
+          The registered legal name, address, GSTIN, and CIN of the organisation that operates this deployment are not configured. Do not treat any company name or office address as belonging to HomelyBlock until the operator publishes them. This is a launch blocker.
         </p>
       )}
       <h2>How to reach the operator</h2>

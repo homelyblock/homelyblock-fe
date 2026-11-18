@@ -25,10 +25,10 @@ export function publicPageMetadata(input: {
     description: input.description,
     alternates: { canonical },
     openGraph: {
-      title: `${input.title} — LivingSpace`,
+      title: `${input.title} — HomelyBlock`,
       description: input.description,
       url: canonical,
-      siteName: "LivingSpace",
+      siteName: "HomelyBlock",
       locale: "en_IN",
       type: "website",
     },

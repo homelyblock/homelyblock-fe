@@ -6,7 +6,7 @@ import { SignUpForm } from "@/features/auth/components/sign-up-form";
 import { getSupabasePublicConfig } from "@/config/supabase-public-env";
 
 export const metadata: Metadata = {
-  title: "Create account — LivingSpace",
+  title: "Create account — HomelyBlock",
   description: "Register as a society administrator or a resident. Platform owner accounts are not created here.",
 };
 

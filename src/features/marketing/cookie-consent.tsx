@@ -76,7 +76,7 @@ export function CookieConsent() {
           Cookie preferences
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          LivingSpace uses essential cookies to keep you signed in. It does not set analytics or marketing cookies, and choosing Accept all does not turn any tracking on.
+          HomelyBlock uses essential cookies to keep you signed in. It does not set analytics or marketing cookies, and choosing Accept all does not turn any tracking on.
         </p>
         <ul className="mt-3 space-y-2 text-sm">
           <li>

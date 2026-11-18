@@ -126,7 +126,7 @@ export function CreateSocietyForm() {
         error={fieldErrors.initialAdminUserId}
       />
       <p className="text-xs leading-5 text-muted-foreground">
-        Search requires an existing LivingSpace profile (after the admin has
+        Search requires an existing HomelyBlock profile (after the admin has
         signed in at least once). Platform-owner authorization is enforced by
         the API.
       </p>

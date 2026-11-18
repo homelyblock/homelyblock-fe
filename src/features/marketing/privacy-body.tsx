@@ -7,15 +7,15 @@ export function PrivacyPolicyBody() {
       <OperatorBlock />
       <h2>What this policy covers</h2>
       <p>
-        LivingSpace is a web application for residential society operations. This policy explains what the application stores and who can see it. It does not decide, for every society, whether the platform operator or the society is the data fiduciary. That depends on who determines the purpose and means of processing, and on the contract between them. Societies do not all have the same legal role.
+        HomelyBlock is a web application for residential society operations. This policy explains what the application stores and who can see it. It does not decide, for every society, whether the platform operator or the society is the data fiduciary. That depends on who determines the purpose and means of processing, and on the contract between them. Societies do not all have the same legal role.
       </p>
       <h2>Information the application stores</h2>
       <ul>
-        <li>Account and authentication information: the sign-in identifier from the configured authentication service, display name, email, and optional phone. LivingSpace does not store passwords.</li>
+        <li>Account and authentication information: the sign-in identifier from the configured authentication service, display name, email, and optional phone. HomelyBlock does not store passwords.</li>
         <li>The registration choice of society administrator or resident. Platform owner is not a public registration choice.</li>
         <li>Society and membership information: society address, buildings, units, role, membership status, and the unit linked to a membership.</li>
         <li>Household information entered by a resident or administrator, including a name, relationship, and optional contact details. Household members do not receive separate logins. A record may describe a child who lives in the home.</li>
-        <li>Billing and transaction records: maintenance configuration, bills, and payments an administrator records. LivingSpace does not collect card or UPI payments and does not receive a bank confirmation.</li>
+        <li>Billing and transaction records: maintenance configuration, bills, and payments an administrator records. HomelyBlock does not collect card or UPI payments and does not receive a bank confirmation.</li>
         <li>Complaint text, status, comments, and, only if the operator explicitly enables storage, complaint images.</li>
         <li>Visitor names and visit details entered for expected or walk-in visitors.</li>
         <li>Notices and whether a person has opened a notice.</li>
@@ -29,7 +29,7 @@ export function PrivacyPolicyBody() {
         The application uses this information to create accounts, connect people to a society, show notices, visitors, bills, complaints, households, and services, and to keep an audit trail of selected changes. Contact messages are used to respond to platform questions.
       </p>
       <p>
-        The Digital Personal Data Protection Act, 2023 (Act 22 of 2023) received assent on 11 August 2023. It does not apply all at once. Notification G.S.R. 843(E) dated 13 November 2025 brings the Act into force in stages. On 18 November 2026, the provisions in force are those that started on publication (including definitions and the establishment of the Data Protection Board) and the one-year group (section 6(9) and section 27(1)(d), concerning consent managers). The operative duties — application of the Act, grounds for processing, notice, most of the consent rules, fiduciary obligations, rights, children’s-data duties, cross-border rules, and penalties — are in the eighteen-month group. Counted from 13 November 2025, that date is 13 May 2027. The Digital Personal Data Protection Rules, 2025 (G.S.R. 846(E), 13 November 2025) follow the same stages. Rules 1, 2 and 17 to 21 started on publication. Rule 4, on consent managers, started one year later. Rules 3, 5 to 16, 22 and 23 start with the eighteen-month group. LivingSpace is not a consent manager.
+        The Digital Personal Data Protection Act, 2023 (Act 22 of 2023) received assent on 11 August 2023. It does not apply all at once. Notification G.S.R. 843(E) dated 13 November 2025 brings the Act into force in stages. On 18 November 2026, the provisions in force are those that started on publication (including definitions and the establishment of the Data Protection Board) and the one-year group (section 6(9) and section 27(1)(d), concerning consent managers). The operative duties — application of the Act, grounds for processing, notice, most of the consent rules, fiduciary obligations, rights, children’s-data duties, cross-border rules, and penalties — are in the eighteen-month group. Counted from 13 November 2025, that date is 13 May 2027. The Digital Personal Data Protection Rules, 2025 (G.S.R. 846(E), 13 November 2025) follow the same stages. Rules 1, 2 and 17 to 21 started on publication. Rule 4, on consent managers, started one year later. Rules 3, 5 to 16, 22 and 23 start with the eighteen-month group. HomelyBlock is not a consent manager.
       </p>
       <p>
         Because those operative duties are not yet in force, this policy does not claim that a particular processing ground under section 4 or section 7 is already a legal requirement. The product still limits access by role because that is how the software is built. Counsel should confirm whether the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 continue to apply until section 44(2) of the DPDP Act, which amends other laws, comes into force.
@@ -52,7 +52,7 @@ export function PrivacyPolicyBody() {
       </p>
       <h2>Children</h2>
       <p>
-        LivingSpace does not offer accounts for children. An adult may enter a household member who is a child. The product does not collect a date of birth or run a verifiable-consent flow. Section 9 of the DPDP Act is in the group scheduled for 13 May 2027. Until an adviser confirms the right approach, operators should not invite children to create their own logins.
+        HomelyBlock does not offer accounts for children. An adult may enter a household member who is a child. The product does not collect a date of birth or run a verifiable-consent flow. Section 9 of the DPDP Act is in the group scheduled for 13 May 2027. Until an adviser confirms the right approach, operators should not invite children to create their own logins.
       </p>
       <h2>Your requests</h2>
       <p>

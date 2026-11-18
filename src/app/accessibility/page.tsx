@@ -4,7 +4,7 @@ import { LegalReviewNotice, PolicySection } from "@/features/marketing/legal-not
 
 export const metadata = publicPageMetadata({
   title: "Accessibility",
-  description: "How LivingSpace approaches accessibility, and what has not been formally audited.",
+  description: "How HomelyBlock approaches accessibility, and what has not been formally audited.",
   path: "/accessibility",
 });
 

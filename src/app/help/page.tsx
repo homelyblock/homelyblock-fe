@@ -31,11 +31,11 @@ export default function HelpPage() {
       </p>
       <h2>Billing and payments</h2>
       <p>
-        Bills are society records. Payments are entered by an administrator after the society has collected the money. LivingSpace does not take a card or UPI payment and does not email a receipt from a gateway. A recorded payment can be reversed by an authorized administrator.
+        Bills are society records. Payments are entered by an administrator after the society has collected the money. HomelyBlock does not take a card or UPI payment and does not email a receipt from a gateway. A recorded payment can be reversed by an authorized administrator.
       </p>
       <h2>Complaints and support</h2>
       <p>
-        A complaint inside a society is for that society’s administrator. A question about the LivingSpace platform goes through the <Link href="/contact">contact form</Link>. The two are stored separately.
+        A complaint inside a society is for that society’s administrator. A question about the HomelyBlock platform goes through the <Link href="/contact">contact form</Link>. The two are stored separately.
       </p>
     </PublicPage>
   );

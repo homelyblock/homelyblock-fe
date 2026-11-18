@@ -5,7 +5,7 @@ export const COOKIE_PREFERENCES_MAX_AGE = 60 * 60 * 24 * 180;
 export type CookieChoice = "accept_all" | "reject_non_essential" | "custom";
 
 /**
- * Optional categories stay off. LivingSpace does not load analytics or
+ * Optional categories stay off. HomelyBlock does not load analytics or
  * marketing scripts, so a saved "accept all" choice must not be treated as
  * permission to inject them later without a real gate.
  */

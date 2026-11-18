@@ -33,7 +33,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
     <div className="space-y-4">
       <fieldset className="space-y-3" aria-invalid={Boolean(roleError?.length)}>
         <legend className="text-sm font-medium text-foreground">
-          How will you use LivingSpace?
+          How will you use HomelyBlock?
         </legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {roles.map((option) => {

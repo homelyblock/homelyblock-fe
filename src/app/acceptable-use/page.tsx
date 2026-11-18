@@ -4,7 +4,7 @@ import { LegalReviewNotice, PolicySection } from "@/features/marketing/legal-not
 
 export const metadata = publicPageMetadata({
   title: "Acceptable use",
-  description: "What you may and may not do with a LivingSpace account.",
+  description: "What you may and may not do with a HomelyBlock account.",
   path: "/acceptable-use",
 });
 
@@ -12,7 +12,7 @@ export const instant = false;
 
 export default function AcceptableUsePage() {
   return (
-    <PublicPage title="Acceptable use" description="Use LivingSpace for genuine society operations.">
+    <PublicPage title="Acceptable use" description="Use HomelyBlock for genuine society operations.">
       <PolicySection>
         <LegalReviewNotice />
         <h2>Expected use</h2>

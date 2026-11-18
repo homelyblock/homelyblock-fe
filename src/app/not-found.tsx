@@ -7,7 +7,7 @@ export default function NotFound() {
     <StatusPage
       code="404"
       title="Page not found"
-      description="That address is not part of LivingSpace. Check the link or return to your societies."
+      description="That address is not part of HomelyBlock. Check the link or return to your societies."
     >
       <Link href="/" className={buttonVariants()}>
         Back to home

@@ -5,7 +5,7 @@ import { LegalReviewNotice, OperatorBlock, PolicySection } from "@/features/mark
 
 export const metadata = publicPageMetadata({
   title: "Security",
-  description: "The security controls LivingSpace implements, and how to report a vulnerability.",
+  description: "The security controls HomelyBlock implements, and how to report a vulnerability.",
   path: "/security",
 });
 
@@ -18,7 +18,7 @@ export default function SecurityPage() {
         <LegalReviewNotice />
         <h2>Controls in the product</h2>
         <ul>
-          <li>Sign-in is handled by the configured authentication service. LivingSpace stores the account profile, not the password.</li>
+          <li>Sign-in is handled by the configured authentication service. HomelyBlock stores the account profile, not the password.</li>
           <li>API requests require a verified access token. The browser session cookie is not treated as enough for the API.</li>
           <li>Roles are read on the server. Public sign-up cannot create a platform owner, and a user cannot change their own privileged role.</li>
           <li>Society queries are limited to the caller’s active membership, or to platform-owner authority where the API allows it.</li>
@@ -30,7 +30,7 @@ export default function SecurityPage() {
         </ul>
         <h2>What is not in the product</h2>
         <p>
-          There is no multi-factor step in the application for the platform owner. The sign-in service may offer that separately, but LivingSpace does not require it. There is no security certification to display. Backups, clock synchronisation, and 180-day log retention inside India are operator infrastructure duties, not switches in this repository.
+          There is no multi-factor step in the application for the platform owner. The sign-in service may offer that separately, but HomelyBlock does not require it. There is no security certification to display. Backups, clock synchronisation, and 180-day log retention inside India are operator infrastructure duties, not switches in this repository.
         </p>
         <h2>Report a vulnerability</h2>
         <OperatorBlock />

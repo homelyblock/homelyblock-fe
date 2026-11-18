@@ -71,7 +71,7 @@ export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
               ? `${operator.legalName}${operator.address ? `, ${operator.address}` : ""}.`
               : "The operating organisation’s legal name and address are not published yet."}
           </p>
-          <p className="text-sm text-primary-foreground/70">© 2026 LivingSpace</p>
+          <p className="text-sm text-primary-foreground/70">© 2026 HomelyBlock</p>
         </div>
         <div className="space-y-2 text-sm">
           <p className="font-medium">Product</p>

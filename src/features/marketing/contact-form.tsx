@@ -149,7 +149,7 @@ export function ContactForm() {
             <Link href="/privacy-policy" className="font-medium underline-offset-4 hover:underline">
               privacy policy
             </Link>{" "}
-            and agree to LivingSpace using this message to respond.
+            and agree to HomelyBlock using this message to respond.
           </span>
         </label>
         {errors.privacyAcknowledged ? (

@@ -4,7 +4,7 @@ import { publicPageMetadata } from "@/features/marketing/public-metadata";
 
 export const metadata = publicPageMetadata({
   title: "About",
-  description: "LivingSpace is a web application for residents and administrators of a residential society.",
+  description: "HomelyBlock is a web application for residents and administrators of a residential society.",
   path: "/about",
 });
 
@@ -12,9 +12,9 @@ export const instant = false;
 
 export default function AboutPage() {
   return (
-    <PublicPage title="About LivingSpace" description="One practical system for the records a society already keeps.">
+    <PublicPage title="About HomelyBlock" description="One practical system for the records a society already keeps.">
       <p>
-        LivingSpace is built for apartment residents, society administrators, and the platform owner who provisions societies. It keeps homes, people, notices, visitors, maintenance records, complaints, and local services in one web application.
+        HomelyBlock is built for apartment residents, society administrators, and the platform owner who provisions societies. It keeps homes, people, notices, visitors, maintenance records, complaints, and local services in one web application.
       </p>
       <p>
         It does not replace a bank, a security gate, or a messaging app. It does not take maintenance payments online. A person sees only the societies and records their role allows.
