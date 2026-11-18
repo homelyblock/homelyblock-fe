@@ -1,0 +1,311 @@
+"use client";
+
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState, useTransition } from "react";
+import { Button } from "@/components/ui/button";
+import { controlClassName, filterControlClassName } from "@/components/ui/control";
+import { AuthStatus } from "@/features/auth/components/auth-status";
+import { Field } from "@/features/auth/components/field";
+import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { ApiError } from "@/services/api-client";
+import {
+  createUnit,
+  fetchBuildings,
+  fetchUnits,
+  updateUnit,
+} from "../api";
+import { createUnitSchema } from "../schemas";
+import type { Unit } from "../types";
+
+type UnitsPanelProps = {
+  societyId: string;
+  canManage: boolean;
+};
+
+export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
+  const queryClient = useQueryClient();
+  const [pending, startTransition] = useTransition();
+  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
+  const [message, setMessage] = useState<string | undefined>();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [filterBuildingId, setFilterBuildingId] = useState("");
+  const [editing, setEditing] = useState<Unit | null>(null);
+
+  const buildingsQuery = useQuery({
+    queryKey: ["buildings", societyId],
+    enabled: canManage,
+    queryFn: async () => {
+      const token = await getBrowserAccessToken();
+      if (!token) {
+        throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+      }
+      return fetchBuildings(token, societyId);
+    },
+  });
+
+  const unitsQuery = useQuery({
+    queryKey: ["units", societyId, filterBuildingId || "all"],
+    enabled: canManage,
+    queryFn: async () => {
+      const token = await getBrowserAccessToken();
+      if (!token) {
+        throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+      }
+      return fetchUnits(token, societyId, filterBuildingId || undefined);
+    },
+  });
+
+  const buildingNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const building of buildingsQuery.data ?? []) {
+      map.set(building.id, `${building.name} (${building.code})`);
+    }
+    return map;
+  }, [buildingsQuery.data]);
+
+  function onSubmit(formData: FormData) {
+    const parsed = createUnitSchema.safeParse({
+      buildingId: editing?.buildingId ?? formData.get("buildingId"),
+      unitNumber: formData.get("unitNumber"),
+      status: formData.get("status") || "ACTIVE",
+    });
+
+    if (!parsed.success) {
+      const flattened = parsed.error.flatten().fieldErrors;
+      const next: Record<string, string[]> = {};
+      for (const [key, value] of Object.entries(flattened)) {
+        if (value && value.length > 0) {
+          next[key] = value;
+        }
+      }
+      setFieldErrors(next);
+      setStatus("error");
+      setMessage("Check the highlighted fields.");
+      return;
+    }
+
+    setFieldErrors({});
+    startTransition(async () => {
+      try {
+        const token = await getBrowserAccessToken();
+        if (!token) {
+          throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+        }
+
+        if (editing) {
+          await updateUnit(token, societyId, editing.id, {
+            unitNumber: parsed.data.unitNumber,
+            status: parsed.data.status,
+          });
+          setMessage("Unit updated.");
+        } else {
+          await createUnit(token, societyId, parsed.data);
+          setMessage("Unit created.");
+        }
+
+        setStatus("success");
+        setEditing(null);
+        await queryClient.invalidateQueries({ queryKey: ["units", societyId] });
+      } catch (error) {
+        setStatus("error");
+        setMessage(
+          error instanceof ApiError ? error.message : "Unable to save unit.",
+        );
+      }
+    });
+  }
+
+  if (!canManage) {
+    return null;
+  }
+
+  if (buildingsQuery.isLoading || unitsQuery.isLoading) {
+    return (
+      <p className="text-sm text-muted-foreground" role="status">
+        Loading units…
+      </p>
+    );
+  }
+
+  if (buildingsQuery.isError || unitsQuery.isError) {
+    const error = buildingsQuery.error ?? unitsQuery.error;
+    return (
+      <p
+        role="alert"
+        className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      >
+        {error instanceof ApiError ? error.message : "Unable to load units."}
+      </p>
+    );
+  }
+
+  const buildings = buildingsQuery.data ?? [];
+  const units = unitsQuery.data ?? [];
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-lg font-semibold text-foreground">Units / flats</h2>
+          <div className="space-y-1.5">
+            <label
+              htmlFor="unit-filter-building"
+              className="block text-sm font-medium text-foreground"
+            >
+              Filter by building
+            </label>
+            <select
+              id="unit-filter-building"
+              value={filterBuildingId}
+              onChange={(event) => setFilterBuildingId(event.target.value)}
+              className={filterControlClassName}
+            >
+              <option value="">All buildings</option>
+              {buildings.map((building) => (
+                <option key={building.id} value={building.id}>
+                  {building.name} ({building.code})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {buildings.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Add a building before creating units.
+          </p>
+        ) : units.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No units yet.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+            {units.map((unit) => (
+              <li
+                key={unit.id}
+                className="flex items-center justify-between gap-3 px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Unit {unit.unitNumber}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {buildingNameById.get(unit.buildingId) ?? "Building"} ·{" "}
+                    {unit.status}
+                  </p>
+                </div>
+                {canManage ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditing(unit);
+                      setStatus("idle");
+                      setMessage(undefined);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {canManage && buildings.length > 0 ? (
+        <form
+          action={onSubmit}
+          className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
+        >
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              {editing ? "Edit unit" : "Add unit"}
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Unit numbers must be unique within a building.
+            </p>
+          </div>
+
+          {!editing ? (
+            <div className="space-y-1.5">
+              <label
+                htmlFor="unit-building"
+                className="block text-sm font-medium text-foreground"
+              >
+                Building
+              </label>
+              <select
+                id="unit-building"
+                name="buildingId"
+                defaultValue=""
+                className={controlClassName}
+                aria-invalid={Boolean(fieldErrors.buildingId?.length)}
+              >
+                <option value="" disabled>
+                  Select a building
+                </option>
+                {buildings.map((building) => (
+                  <option key={building.id} value={building.id}>
+                    {building.name} ({building.code})
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.buildingId?.length ? (
+                <p className="text-sm text-destructive">{fieldErrors.buildingId[0]}</p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Building: {buildingNameById.get(editing.buildingId) ?? "—"}
+            </p>
+          )}
+
+          <Field
+            id="unit-number"
+            name="unitNumber"
+            label="Unit number"
+            defaultValue={editing?.unitNumber ?? ""}
+            key={`unit-${editing?.id ?? "new"}`}
+            error={fieldErrors.unitNumber}
+          />
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="unit-status"
+              className="block text-sm font-medium text-foreground"
+            >
+              Status
+            </label>
+            <select
+              id="unit-status"
+              name="status"
+              defaultValue={editing?.status ?? "ACTIVE"}
+              key={`status-${editing?.id ?? "new"}`}
+              className={controlClassName}
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </div>
+
+          <AuthStatus status={status} message={message} />
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" disabled={pending}>
+              {pending ? "Saving…" : editing ? "Update unit" : "Create unit"}
+            </Button>
+            {editing ? (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={pending}
+                onClick={() => setEditing(null)}
+              >
+                Cancel
+              </Button>
+            ) : null}
+          </div>
+        </form>
+      ) : null}
+    </div>
+  );
+}
