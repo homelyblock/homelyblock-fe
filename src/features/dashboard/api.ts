@@ -1,5 +1,5 @@
 import { apiRequest } from "@/services/api-client";
-import type { AdminDashboard, ResidentDashboard } from "./types";
+import type { AdminDashboard, Attention, ResidentDashboard } from "./types";
 
 type DataEnvelope<T> = { data: T };
 
@@ -25,6 +25,17 @@ export async function fetchAdminDashboard(
   const qs = params.toString();
   const response = await apiRequest<DataEnvelope<AdminDashboard>>(
     `/api/v1/societies/${societyId}/dashboard/admin${qs ? `?${qs}` : ""}`,
+    { accessToken },
+  );
+  return response.data;
+}
+
+export async function fetchAttention(
+  accessToken: string,
+  societyId: string,
+): Promise<Attention> {
+  const response = await apiRequest<DataEnvelope<Attention>>(
+    `/api/v1/societies/${societyId}/dashboard/attention`,
     { accessToken },
   );
   return response.data;

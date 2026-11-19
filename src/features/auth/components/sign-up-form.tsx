@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useActionGate } from "@/lib/use-submit-guard";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/provider";
 import { signUpAction, type AuthActionState } from "../actions";
 import { AuthStatus } from "./auth-status";
 import { Field } from "./field";
@@ -11,15 +14,17 @@ import { RoleSetupFields } from "./role-setup-fields";
 const initialState: AuthActionState = { status: "idle" };
 
 export function SignUpForm() {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(signUpAction, initialState);
+  const gate = useActionGate(pending);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form noValidate onSubmit={preservedSubmit((formData) => { gate(() => formAction(formData)); })} className="space-y-4">
       <AuthStatus status={state.status} message={state.message} />
       <Field
         id="fullName"
         name="fullName"
-        label="Full name"
+        label={t("auth.fullName")}
         type="text"
         autoComplete="name"
         required
@@ -28,7 +33,7 @@ export function SignUpForm() {
       <Field
         id="email"
         name="email"
-        label="Email"
+        label={t("auth.email")}
         type="email"
         autoComplete="email"
         required
@@ -37,7 +42,7 @@ export function SignUpForm() {
       <PasswordField
         id="password"
         name="password"
-        label="Password"
+        label={t("auth.password")}
         autoComplete="new-password"
         required
         minLength={8}
@@ -46,7 +51,7 @@ export function SignUpForm() {
       <PasswordField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm password"
+        label={t("auth.confirmPassword")}
         autoComplete="new-password"
         required
         minLength={8}

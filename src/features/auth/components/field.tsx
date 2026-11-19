@@ -1,4 +1,8 @@
+"use client";
+
 import type { InputHTMLAttributes, ReactNode } from "react";
+import { translateKnown } from "@/i18n/known-messages.ts";
+import { useI18n } from "@/i18n/provider";
 import {
   controlClassName,
   fieldErrorClassName,
@@ -23,6 +27,7 @@ export function Field({
   required,
   ...inputProps
 }: FieldProps) {
+  const { t } = useI18n();
   const descriptionId = description ? `${id}-hint` : undefined;
   const errorId = error?.length ? `${id}-error` : undefined;
   const describedBy = [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
@@ -55,7 +60,7 @@ export function Field({
       )}
       {error?.length ? (
         <p id={errorId} role="alert" className={fieldErrorClassName}>
-          {error[0]}
+          {translateKnown(error[0], t)}
         </p>
       ) : null}
     </div>

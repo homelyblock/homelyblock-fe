@@ -1,12 +1,19 @@
+"use client";
+
+import { translateKnown } from "@/i18n/known-messages.ts";
+import { useI18n } from "@/i18n/provider";
+
 type AuthStatusProps = {
   status: "idle" | "error" | "success";
   message?: string;
 };
 
 export function AuthStatus({ status, message }: AuthStatusProps) {
+  const { t } = useI18n();
   if (status === "idle" || !message) {
     return null;
   }
+  const text = translateKnown(message, t);
 
   const tone =
     status === "error"
@@ -18,7 +25,7 @@ export function AuthStatus({ status, message }: AuthStatusProps) {
       role={status === "error" ? "alert" : "status"}
       className={`rounded-xl border border-l-4 px-4 py-3 text-sm leading-6 ${tone}`}
     >
-      {message}
+      {text}
     </p>
   );
 }

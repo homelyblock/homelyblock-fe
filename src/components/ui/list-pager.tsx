@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/provider";
 
 type ListPagerProps = {
   page: number;
@@ -17,13 +18,14 @@ export function ListPager({
   disabled = false,
   onPage,
 }: ListPagerProps) {
+  const { t } = useI18n();
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (total <= pageSize) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3" aria-busy={disabled}>
       <p className="text-sm text-muted-foreground">
-        Page {page} of {pages} · {total} records
+        {t("common.pageOf", { page, pages, total })}
       </p>
       <div className="flex gap-2">
         <Button
@@ -32,7 +34,7 @@ export function ListPager({
           disabled={disabled || page <= 1}
           onClick={() => onPage(page - 1)}
         >
-          Previous
+          {t("common.previous")}
         </Button>
         <Button
           type="button"
@@ -40,7 +42,7 @@ export function ListPager({
           disabled={disabled || page >= pages}
           onClick={() => onPage(page + 1)}
         >
-          Next
+          {t("common.next")}
         </Button>
       </div>
     </div>

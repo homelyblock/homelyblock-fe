@@ -1,8 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
@@ -24,7 +25,7 @@ type GenerateBillsPanelProps = {
 
 export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
   const now = useMemo(() => new Date(), []);
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [preview, setPreview] = useState<GenerateBillsResult | null>(null);
@@ -75,7 +76,7 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
       return;
     }
 
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -188,7 +189,10 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
         </p>
       ) : null}
 
-      <form className="space-y-4 rounded-lg border border-border bg-card p-4">
+      <form
+        className="space-y-4 rounded-lg border border-border bg-card p-4"
+        onSubmit={(event) => event.preventDefault()}
+      >
         <div className="space-y-1.5">
           <label
             htmlFor="configId"
@@ -252,25 +256,40 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
-            type="submit"
+            type="button"
             variant="secondary"
             disabled={pending || activeConfigs.length === 0}
-            formAction={(formData) => run("preview", formData)}
+            aria-busy={pending}
+            onClick={(event) => {
+              const form = event.currentTarget.form;
+              if (!form || pending) return;
+              run("preview", new FormData(form));
+            }}
           >
             Preview
           </Button>
           <Button
-            type="submit"
+            type="button"
             disabled={pending || activeConfigs.length === 0}
-            formAction={(formData) => run("generate", formData)}
+            aria-busy={pending}
+            onClick={(event) => {
+              const form = event.currentTarget.form;
+              if (!form || pending) return;
+              run("generate", new FormData(form));
+            }}
           >
             Generate drafts
           </Button>
           <Button
-            type="submit"
+            type="button"
             variant="secondary"
             disabled={pending}
-            formAction={(formData) => run("publish", formData)}
+            aria-busy={pending}
+            onClick={(event) => {
+              const form = event.currentTarget.form;
+              if (!form || pending) return;
+              run("publish", new FormData(form));
+            }}
           >
             Publish period
           </Button>

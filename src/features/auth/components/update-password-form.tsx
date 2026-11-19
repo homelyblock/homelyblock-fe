@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useActionGate } from "@/lib/use-submit-guard";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/provider";
 import { updatePasswordAction, type AuthActionState } from "../actions";
 import { AuthStatus } from "./auth-status";
 import { PasswordField } from "./password-field";
@@ -9,18 +12,20 @@ import { PasswordField } from "./password-field";
 const initialState: AuthActionState = { status: "idle" };
 
 export function UpdatePasswordForm() {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(
     updatePasswordAction,
     initialState,
   );
+  const gate = useActionGate(pending);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form noValidate onSubmit={preservedSubmit((formData) => { gate(() => formAction(formData)); })} className="space-y-4">
       <AuthStatus status={state.status} message={state.message} />
       <PasswordField
         id="password"
         name="password"
-        label="New password"
+        label={t("auth.newPassword")}
         autoComplete="new-password"
         required
         minLength={8}
@@ -29,7 +34,7 @@ export function UpdatePasswordForm() {
       <PasswordField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm new password"
+        label={t("auth.confirmNewPassword")}
         autoComplete="new-password"
         required
         minLength={8}

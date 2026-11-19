@@ -1,8 +1,10 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery } from "@tanstack/react-query";
+import { preservedSubmit } from "@/lib/form-submit";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName, textareaClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
@@ -24,7 +26,7 @@ type NoticeFormProps = {
 
 export function NoticeForm({ societyId, notice }: NoticeFormProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -84,7 +86,7 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -151,7 +153,7 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
 
   return (
     <form
-      action={onSubmit}
+      noValidate onSubmit={preservedSubmit(onSubmit)}
       className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
     >
       <div>

@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   --color-success: var(--theme-success);
   --color-warning: var(--theme-warning);
   --color-info: var(--theme-info);
@@ -165,7 +165,9 @@
   }
   dialog {
     margin: auto;
-    max-width: calc(100vw - 2rem);
+    max-width: min(32rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 2rem);
+    overflow: auto;
     border: 0;
     padding: 0;
     background: transparent;

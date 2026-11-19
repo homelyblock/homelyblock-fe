@@ -15,6 +15,7 @@ import { formatMoney, RESIDENT_ACTION_LINKS } from "../links";
 import { ActivityList } from "./activity-list";
 import { DashboardSection, Metric, RecordLink } from "./metric";
 import { QuickActions } from "./quick-actions";
+import { useI18n } from "@/i18n/provider";
 
 type ResidentDashboardProps = {
   societyId: string;
@@ -27,6 +28,7 @@ async function requireToken() {
 }
 
 export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
+  const { t } = useI18n();
   const query = useQuery({
     queryKey: ["dashboard", "resident", societyId],
     queryFn: async () => fetchResidentDashboard(await requireToken(), societyId),
@@ -42,15 +44,20 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
   });
 
   if (query.isLoading) {
-    return <LoadingSkeleton label="Loading your dashboard" />;
+    return <LoadingSkeleton label={t("dashboard.loadingResident")} />;
   }
 
   if (query.isError) {
     return (
       <Alert>
-        {query.error instanceof ApiError
-          ? query.error.message
-          : "Unable to load dashboard."}
+        <p>
+          {query.error instanceof ApiError
+            ? query.error.message
+            : t("dashboard.loadError")}
+        </p>
+        <button type="button" className="mt-2 font-medium underline" onClick={() => void query.refetch()}>
+          {t("common.retry")}
+        </button>
       </Alert>
     );
   }
@@ -59,8 +66,8 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
   if (!data) return null;
   const unitLabel =
     data.membership.buildingName && data.membership.unitNumber
-      ? `${data.membership.buildingName} · Unit ${data.membership.unitNumber}`
-      : "No primary unit assigned yet";
+      ? `${data.membership.buildingName} · ${t("dashboard.unitWord")} ${data.membership.unitNumber}`
+      : t("dashboard.noPrimaryUnit");
 
   return (
     <div className="space-y-8">
@@ -81,25 +88,23 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Outstanding dues" value={formatMoney(data.maintenance.outstandingBalance)} />
-        <Metric label="Unread notices" value={data.notices.unreadCount} />
-        <Metric label="Open complaints" value={data.complaints.openOrInProgressCount} />
-        <Metric label="Pending visitors" value={data.visitors.pendingApprovalCount} />
+        <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.outstandingBalance)} />
+        <Metric label={t("dashboard.unreadNotices")} value={data.notices.unreadCount} />
+        <Metric label={t("dashboard.openComplaints")} value={data.complaints.openOrInProgressCount} />
+        <Metric label={t("dashboard.pendingVisitors")} value={data.visitors.pendingApprovalCount} />
       </div>
 
       <DashboardSection
-        title="Household"
-        action={{ href: `/societies/${societyId}/household`, label: "Manage household" }}
+        title={t("nav.household")}
+        action={{ href: `/societies/${societyId}/household`, label: t("dashboard.manageHousehold") }}
       >
         <p className="text-sm text-muted-foreground">{unitLabel}</p>
         {householdQuery.isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading household members…</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.loadingHousehold")}</p>
         ) : householdQuery.isError || !householdQuery.data ? (
-          <p className="text-sm text-muted-foreground">
-            Household members could not be loaded.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.householdFailed")}</p>
         ) : householdQuery.data.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No household members added yet.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noHousehold")}</p>
         ) : (
           <ul className="space-y-2">
             {householdQuery.data.items.map((member) => (
@@ -119,11 +124,11 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Maintenance"
-        action={{ href: `/societies/${societyId}/billing`, label: "View bills" }}
+        title={t("dashboard.maintenance")}
+        action={{ href: `/societies/${societyId}/billing`, label: t("dashboard.viewBills") }}
       >
         {data.maintenance.openBills.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No open bills for your unit.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noOpenBills")}</p>
         ) : (
           <ul className="space-y-2">
             {data.maintenance.openBills.map((bill) => (
@@ -131,7 +136,7 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
                 <RecordLink href={`/societies/${societyId}/billing/bills/${bill.id}`}>
                   <span className="flex flex-wrap items-center justify-between gap-2">
                     <span>
-                      {bill.invoiceNumber} · {formatMoney(bill.outstandingAmount)} due {formatDate(bill.dueDate)}
+                      {bill.invoiceNumber} · {formatMoney(bill.outstandingAmount)} {t("dashboard.due")} {formatDate(bill.dueDate)}
                     </span>
                     <StatusBadge value={bill.status} />
                   </span>
@@ -143,7 +148,7 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
         {data.maintenance.recentPayments.length > 0 ? (
           <div className="space-y-1">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Recent recorded payments
+              {t("dashboard.recentPayments")}
             </p>
             <ul className="space-y-1 text-sm text-foreground">
               {data.maintenance.recentPayments.map((payment) => (
@@ -158,18 +163,18 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Notices"
-        action={{ href: `/societies/${societyId}/notices`, label: "All notices" }}
+        title={t("dashboard.notices")}
+        action={{ href: `/societies/${societyId}/notices`, label: t("dashboard.allNotices") }}
       >
         {data.notices.recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No published notices yet.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noNotices")}</p>
         ) : (
           <ul className="space-y-2">
             {data.notices.recent.map((notice) => (
               <li key={notice.id}>
                 <RecordLink href={`/societies/${societyId}/notices/${notice.id}`}>
                   {notice.title}
-                  {!notice.isRead ? " · Unread" : ""}
+                  {!notice.isRead ? ` · ${t("dashboard.unreadMark")}` : ""}
                 </RecordLink>
               </li>
             ))}
@@ -178,11 +183,11 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Complaints"
-        action={{ href: `/societies/${societyId}/complaints`, label: "All complaints" }}
+        title={t("dashboard.complaints")}
+        action={{ href: `/societies/${societyId}/complaints`, label: t("dashboard.allComplaints") }}
       >
         {data.complaints.recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No complaints yet.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noComplaints")}</p>
         ) : (
           <ul className="space-y-2">
             {data.complaints.recent.map((complaint) => (
@@ -200,11 +205,11 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Visitors"
-        action={{ href: `/societies/${societyId}/visitors`, label: "Visitor records" }}
+        title={t("dashboard.visitors")}
+        action={{ href: `/societies/${societyId}/visitors`, label: t("dashboard.visitorRecords") }}
       >
         {data.visitors.recentExpected.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No recent visitors.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noVisitors")}</p>
         ) : (
           <ul className="space-y-2">
             {data.visitors.recentExpected.map((visitor) => (
@@ -222,15 +227,15 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Society services"
-        action={{ href: `/societies/${societyId}/services`, label: "Full directory" }}
+        title={t("dashboard.services")}
+        action={{ href: `/societies/${societyId}/services`, label: t("dashboard.fullDirectory") }}
       >
         {servicesQuery.isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading services…</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.loadingServices")}</p>
         ) : servicesQuery.isError || !servicesQuery.data ? (
-          <p className="text-sm text-muted-foreground">Services could not be loaded.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.servicesFailed")}</p>
         ) : servicesQuery.data.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No active services have been published.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noServices")}</p>
         ) : (
           <ul className="space-y-2">
             {servicesQuery.data.items.map((service) => (
@@ -248,11 +253,11 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
         )}
       </DashboardSection>
 
-      <DashboardSection title="Recent activity">
+      <DashboardSection title={t("dashboard.recentActivity")}>
         <ActivityList
           societyId={societyId}
           items={data.recentActivity}
-          emptyMessage="No recent activity for your unit yet."
+          emptyMessage={t("dashboard.noActivity")}
         />
       </DashboardSection>
     </div>

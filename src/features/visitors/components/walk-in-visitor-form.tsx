@@ -1,14 +1,17 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery } from "@tanstack/react-query";
+import { preservedSubmit } from "@/lib/form-submit";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName, textareaClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
 import { fetchUnits } from "@/features/society-structure/api";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import { indiaDateTimeLocalToIso } from "@/lib/format-date";
 import { createWalkInVisitor } from "../api";
@@ -19,8 +22,9 @@ type WalkInVisitorFormProps = {
 };
 
 export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
+  const { t } = useI18n();
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -71,7 +75,7 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -107,7 +111,7 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
 
   return (
     <form
-      action={onSubmit}
+      noValidate onSubmit={preservedSubmit(onSubmit)}
       className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
     >
       <div>
@@ -149,32 +153,32 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
       <Field
         id="walkin-name"
         name="visitorName"
-        label="Visitor name"
+        label={t("forms.visitorName")}
         error={fieldErrors.visitorName}
       />
       <Field
         id="walkin-phone"
         name="visitorPhone"
-        label="Phone number"
+        label={t("forms.phone")}
         error={fieldErrors.visitorPhone}
       />
       <Field
         id="walkin-purpose"
         name="purpose"
-        label="Visit purpose"
+        label={t("forms.purpose")}
         error={fieldErrors.purpose}
       />
       <Field
         id="walkin-expected"
         name="expectedAt"
-        label="Expected date & time (optional)"
+        label={t("forms.expectedOptional")}
         type="datetime-local"
         error={fieldErrors.expectedAt}
       />
       <Field
         id="walkin-vehicle"
         name="vehicleNumber"
-        label="Vehicle number (optional)"
+        label={t("forms.vehicleOptional")}
         error={fieldErrors.vehicleNumber}
       />
       <div className="space-y-1.5">

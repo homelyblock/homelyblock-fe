@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { ApiError, apiRequest } from "@/services/api-client";
 import { checkboxClassName, controlClassName, fieldErrorClassName, fieldLabelClassName, textareaClassName } from "@/components/ui/control";
 import { validateContact, type ContactDraft } from "@/features/marketing/contact-schema";
+import { translateKnown } from "@/i18n/known-messages.ts";
+import { useI18n } from "@/i18n/provider";
 
 const empty: ContactDraft = {
   fullName: "",
@@ -16,14 +18,17 @@ const empty: ContactDraft = {
 };
 
 export function ContactForm() {
+  const { t } = useI18n();
   const [draft, setDraft] = useState<ContactDraft>(empty);
   const [website, setWebsite] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof ContactDraft, string>>>({});
   const [status, setStatus] = useState<"idle" | "pending" | "sent" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const flight = useRef(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (flight.current) return;
     const nextErrors = validateContact(draft);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
@@ -32,6 +37,7 @@ export function ContactForm() {
       return;
     }
 
+    flight.current = true;
     setStatus("pending");
     setMessage(null);
     try {
@@ -59,6 +65,8 @@ export function ContactForm() {
           ? "Too many messages were sent from this network. Wait a few minutes and try again."
           : "The message could not be sent. Check your connection and try again.",
       );
+    } finally {
+      flight.current = false;
     }
   }
 
@@ -160,7 +168,7 @@ export function ContactForm() {
       </div>
       {message ? (
         <p role="status" className={status === "error" ? fieldErrorClassName : "text-sm leading-6"}>
-          {message}
+          {translateKnown(message, t)}
         </p>
       ) : null}
       <button

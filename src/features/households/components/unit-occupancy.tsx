@@ -1,8 +1,10 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import Link from "next/link";
+import { preservedSubmit } from "@/lib/form-submit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName } from "@/components/ui/control";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -26,7 +28,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ["unit-household", societyId, unitId],
@@ -43,7 +45,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
     });
   }
 
-  function onAdd(membershipId: string, formData: FormData) {
+  function onAdd(membershipId: string, formData: FormData, form: HTMLFormElement) {
     const parsed = householdMemberFormSchema.safeParse({
       name: formData.get("name"),
       relationship: formData.get("relationship"),
@@ -56,7 +58,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
       return;
     }
     setError(undefined);
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -65,6 +67,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
           ...parsed.data,
         });
         setMessage("Household member added.");
+        form.reset();
         await refresh();
       } catch (caught) {
         setMessage(undefined);
@@ -79,7 +82,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
 
   function onDeactivate(memberId: string) {
     setError(undefined);
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -194,7 +197,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
             )}
             <form
               className="mt-3 grid gap-2 border-t border-border pt-3 sm:grid-cols-2"
-              action={(formData) => onAdd(item.membershipId, formData)}
+              noValidate onSubmit={preservedSubmit((formData, form) => onAdd(item.membershipId, formData, form))}
             >
               <input
                 name="name"

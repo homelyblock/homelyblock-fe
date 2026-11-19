@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName, textareaClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
@@ -19,7 +21,7 @@ type ServiceFormProps = {
 
 export function ServiceForm({ societyId, service }: ServiceFormProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -49,7 +51,7 @@ export function ServiceForm({ societyId, service }: ServiceFormProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -92,7 +94,7 @@ export function ServiceForm({ societyId, service }: ServiceFormProps) {
       </div>
       <AuthStatus status={status} message={message} />
       <form
-        action={onSubmit}
+        noValidate onSubmit={preservedSubmit(onSubmit)}
         className="space-y-4 rounded-lg border border-border bg-card p-4"
       >
         <Field

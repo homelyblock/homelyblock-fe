@@ -1,11 +1,13 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/features/auth/components/field";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { fieldErrorMap, focusFirstInvalid, lockForm, preservedSubmit, unlockForm } from "@/lib/form-submit";
 import { ApiError } from "@/services/api-client";
 import { createSociety } from "../api";
 import { createSocietySchema } from "../schemas";
@@ -14,7 +16,7 @@ import { UserSearchSelector } from "./user-search-selector";
 
 export function CreateSocietyForm() {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -22,7 +24,7 @@ export function CreateSocietyForm() {
     null,
   );
 
-  function onSubmit(formData: FormData) {
+  function onSubmit(formData: FormData, form: HTMLFormElement) {
     const parsed = createSocietySchema.safeParse({
       name: formData.get("name"),
       addressLine1: formData.get("addressLine1") || "",
@@ -34,21 +36,18 @@ export function CreateSocietyForm() {
     });
 
     if (!parsed.success) {
-      const flattened = parsed.error.flatten().fieldErrors;
-      const next: Record<string, string[]> = {};
-      for (const [key, value] of Object.entries(flattened)) {
-        if (value && value.length > 0) {
-          next[key] = value;
-        }
-      }
+      const next = fieldErrorMap(parsed.error.flatten().fieldErrors);
       setFieldErrors(next);
       setStatus("error");
       setMessage("Check the highlighted fields.");
+      focusFirstInvalid(form, next);
       return;
     }
 
+    if (form.dataset.locked === "1") return;
     setFieldErrors({});
-    startTransition(async () => {
+    lockForm(form);
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -83,12 +82,14 @@ export function CreateSocietyForm() {
             ? error.message
             : "Unable to create the society.",
         );
+      } finally {
+        unlockForm(form);
       }
     });
   }
 
   return (
-    <form action={onSubmit} className="space-y-4">
+    <form noValidate onSubmit={preservedSubmit(onSubmit)} className="space-y-4">
       <AuthStatus status={status} message={message} />
       <Field
         id="name"

@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
@@ -22,7 +24,7 @@ export function MaintenanceConfigPanel({
   societyId,
 }: MaintenanceConfigPanelProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -38,7 +40,7 @@ export function MaintenanceConfigPanel({
     },
   });
 
-  function onCreate(formData: FormData) {
+  function onCreate(formData: FormData, form: HTMLFormElement) {
     const name = String(formData.get("name") ?? "").trim();
     const monthlyAmount = String(formData.get("monthlyAmount") ?? "").trim();
     const dueDayOfMonth = Number(formData.get("dueDayOfMonth"));
@@ -73,7 +75,7 @@ export function MaintenanceConfigPanel({
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -89,6 +91,7 @@ export function MaintenanceConfigPanel({
         });
         setStatus("success");
         setMessage("Maintenance configuration saved.");
+        form.reset();
         await queryClient.invalidateQueries({
           queryKey: ["maintenance-configs", societyId],
         });
@@ -104,7 +107,7 @@ export function MaintenanceConfigPanel({
   }
 
   function toggleStatus(configId: string, next: "ACTIVE" | "INACTIVE") {
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -145,7 +148,7 @@ export function MaintenanceConfigPanel({
 
       <AuthStatus status={status} message={message} />
 
-      <form action={onCreate} className="space-y-4 rounded-lg border border-border bg-card p-4">
+      <form noValidate onSubmit={preservedSubmit(onCreate)} className="space-y-4 rounded-lg border border-border bg-card p-4">
         <Field id="name" name="name" label="Name" error={fieldErrors.name} />
         <Field
           id="description"

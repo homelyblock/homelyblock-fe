@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
+import { useI18n } from "@/i18n/provider";
 
 type AccountMenuProps = {
   label: string;
@@ -17,6 +18,7 @@ export function AccountMenu({
   signOutReturnTo = "/sign-in",
 }: AccountMenuProps) {
   const pathname = usePathname();
+  const { t } = useI18n();
   const rootRef = useRef<HTMLDivElement>(null);
   const [openPath, setOpenPath] = useState<string | null>(null);
   const open = openPath === pathname;
@@ -64,7 +66,7 @@ export function AccountMenu({
             className="block rounded-md px-2 py-2 text-sm hover:bg-muted"
             onClick={() => setOpenPath(null)}
           >
-            Societies
+            {t("nav.societies")}
           </Link>
           <Link
             href="/profile"
@@ -72,7 +74,7 @@ export function AccountMenu({
             className="block rounded-md px-2 py-2 text-sm hover:bg-muted"
             onClick={() => setOpenPath(null)}
           >
-            Profile
+            {t("nav.profile")}
           </Link>
           <div className="mt-1 border-t border-border pt-2">
             <SignOutButton returnTo={signOutReturnTo} />

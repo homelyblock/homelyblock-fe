@@ -1,7 +1,8 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -42,7 +43,7 @@ export function BillDetailView({
   const queryClient = useQueryClient();
   const printRef = useRef<HTMLElement>(null);
   const paymentIdempotencyKeyRef = useRef<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [reverseTarget, setReverseTarget] = useState<Payment | null>(null);
@@ -88,7 +89,7 @@ export function BillDetailView({
   }
 
   function onPublish() {
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -109,7 +110,7 @@ export function BillDetailView({
     });
   }
 
-  function onRecordPayment(formData: FormData) {
+  function onRecordPayment(formData: FormData, form: HTMLFormElement) {
     const amount = String(formData.get("amount") ?? "").trim();
     const method = String(formData.get("method") ?? "") as Payment["method"];
     const paidAtLocal = String(formData.get("paidAt") ?? "");
@@ -135,7 +136,7 @@ export function BillDetailView({
     }
     const idempotencyKey = paymentIdempotencyKeyRef.current;
 
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -152,6 +153,7 @@ export function BillDetailView({
         paymentIdempotencyKeyRef.current = null;
         setStatus("success");
         setMessage("Payment recorded.");
+        form.reset();
         await refresh();
       } catch (error) {
         setStatus("error");
@@ -165,7 +167,7 @@ export function BillDetailView({
   }
 
   function onDownloadPdf() {
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -201,7 +203,7 @@ export function BillDetailView({
     }
     reverseLock.current = true;
     setReverseError(undefined);
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -316,7 +318,8 @@ export function BillDetailView({
           </p>
         </div>
 
-        <table className="w-full text-left text-sm">
+        <div className="max-w-full overflow-x-auto">
+        <table className="w-full min-w-[20rem] text-left text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
               <th className="py-2 font-medium">Description</th>
@@ -375,11 +378,18 @@ export function BillDetailView({
             </tr>
           </tfoot>
         </table>
+        </div>
       </article>
 
       {canRecordPayment ? (
         <form
-          action={onRecordPayment}
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            if (form.dataset.locked === "1") return;
+            onRecordPayment(new FormData(form), form);
+          }}
           className="space-y-4 rounded-lg border border-border bg-card p-4 print:hidden"
         >
           <h3 className="text-base font-semibold text-foreground">

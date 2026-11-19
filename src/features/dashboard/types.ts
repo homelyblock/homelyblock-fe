@@ -1,3 +1,17 @@
+export type AttentionCounts = {
+  complaints: number;
+  members: number;
+  visitors: number;
+  notices: number;
+  billing: number;
+};
+
+export type Attention = {
+  societyId: string;
+  scope: "ADMIN" | "RESIDENT";
+  counts: AttentionCounts;
+};
+
 export type DashboardActivityItem = {
   id: string;
   type: string;

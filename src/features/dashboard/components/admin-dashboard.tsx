@@ -12,12 +12,14 @@ import { ADMIN_ACTION_LINKS, formatMoney } from "../links";
 import { ActivityList } from "./activity-list";
 import { DashboardSection, Metric, RecordLink } from "./metric";
 import { QuickActions } from "./quick-actions";
+import { useI18n } from "@/i18n/provider";
 
 type AdminDashboardProps = {
   societyId: string;
 };
 
 export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
+  const { t } = useI18n();
   const query = useQuery({
     queryKey: ["dashboard", "admin", societyId],
     queryFn: async () => {
@@ -28,15 +30,20 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
   });
 
   if (query.isLoading) {
-    return <LoadingSkeleton label="Loading society dashboard" />;
+    return <LoadingSkeleton label={t("dashboard.loadingAdmin")} />;
   }
 
   if (query.isError) {
     return (
       <Alert>
-        {query.error instanceof ApiError
-          ? query.error.message
-          : "Unable to load dashboard."}
+        <p>
+          {query.error instanceof ApiError
+            ? query.error.message
+            : t("dashboard.loadError")}
+        </p>
+        <button type="button" className="mt-2 font-medium underline" onClick={() => void query.refetch()}>
+          {t("common.retry")}
+        </button>
       </Alert>
     );
   }
@@ -56,7 +63,7 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
             {data.society.name}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Society administration · {period}
+            {t("dashboard.adminSubtitle", { period })}
           </p>
         </div>
         <StatusBadge value={data.society.status} />
@@ -68,49 +75,47 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
         catalog={ADMIN_ACTION_LINKS}
       />
 
-      <DashboardSection title="Occupancy">
+      <DashboardSection title={t("dashboard.occupancy")}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Buildings" value={data.occupancy.totalBuildings} />
-          <Metric label="Units" value={data.occupancy.totalUnits} />
-          <Metric label="Occupied units" value={data.occupancy.occupiedUnits} />
-          <Metric label="Vacant units" value={data.occupancy.vacantUnits} />
-          <Metric label="Active units" value={data.occupancy.activeUnits} />
-          <Metric label="Residents" value={data.occupancy.activeResidentMemberships} />
-          <Metric label="Administrators" value={data.occupancy.activeAdminMemberships} />
-          <Metric label="Household members" value={data.occupancy.activeHouseholdMembers} />
+          <Metric label={t("dashboard.buildings")} value={data.occupancy.totalBuildings} />
+          <Metric label={t("dashboard.units")} value={data.occupancy.totalUnits} />
+          <Metric label={t("dashboard.occupied")} value={data.occupancy.occupiedUnits} />
+          <Metric label={t("dashboard.vacant")} value={data.occupancy.vacantUnits} />
+          <Metric label={t("dashboard.activeUnits")} value={data.occupancy.activeUnits} />
+          <Metric label={t("dashboard.residents")} value={data.occupancy.activeResidentMemberships} />
+          <Metric label={t("dashboard.administrators")} value={data.occupancy.activeAdminMemberships} />
+          <Metric label={t("dashboard.householdMembers")} value={data.occupancy.activeHouseholdMembers} />
         </div>
         <p className="text-xs leading-5 text-muted-foreground">
-          {data.occupancy.occupancyDefinition}
+          {t("dashboard.occupancyDefinition")}
         </p>
       </DashboardSection>
 
       <DashboardSection
-        title="Maintenance"
-        action={{ href: `/societies/${societyId}/billing`, label: "Open billing" }}
+        title={t("dashboard.maintenance")}
+        action={{ href: `/societies/${societyId}/billing`, label: t("dashboard.openBilling") }}
       >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Billed" value={formatMoney(data.maintenance.totalBilled)} />
-          <Metric label="Collected" value={formatMoney(data.maintenance.totalCollected)} />
-          <Metric label="Outstanding" value={formatMoney(data.maintenance.totalOutstanding)} />
-          <Metric label="Overdue" value={formatMoney(data.maintenance.overdueAmount)} />
-          <Metric label="Unpaid bills" value={data.maintenance.unpaidInvoiceCount} />
-          <Metric label="Partially paid" value={data.maintenance.partiallyPaidInvoiceCount} />
-          <Metric label="Paid bills" value={data.maintenance.paidInvoiceCount} />
+          <Metric label={t("dashboard.billed")} value={formatMoney(data.maintenance.totalBilled)} />
+          <Metric label={t("dashboard.collected")} value={formatMoney(data.maintenance.totalCollected)} />
+          <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.totalOutstanding)} />
+          <Metric label={t("dashboard.overdue")} value={formatMoney(data.maintenance.overdueAmount)} />
+          <Metric label={t("dashboard.unpaidBills")} value={data.maintenance.unpaidInvoiceCount} />
+          <Metric label={t("dashboard.partiallyPaid")} value={data.maintenance.partiallyPaidInvoiceCount} />
+          <Metric label={t("dashboard.paidBills")} value={data.maintenance.paidInvoiceCount} />
         </div>
-        <p className="text-xs text-muted-foreground">
-          Amounts are records. Payments are entered here after they are collected outside HomelyBlock.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("dashboard.amountsNote")}</p>
       </DashboardSection>
 
       <DashboardSection
-        title="Complaints"
-        action={{ href: `/societies/${societyId}/complaints`, label: "View complaints" }}
+        title={t("dashboard.complaints")}
+        action={{ href: `/societies/${societyId}/complaints`, label: t("dashboard.viewComplaints") }}
       >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Open" value={data.complaints.open} />
-          <Metric label="In progress" value={data.complaints.inProgress} />
-          <Metric label="Resolved" value={data.complaints.resolved} />
-          <Metric label="High or urgent" value={data.complaints.highOrUrgent} />
+          <Metric label={t("dashboard.open")} value={data.complaints.open} />
+          <Metric label={t("dashboard.inProgress")} value={data.complaints.inProgress} />
+          <Metric label={t("dashboard.resolved")} value={data.complaints.resolved} />
+          <Metric label={t("dashboard.highOrUrgent")} value={data.complaints.highOrUrgent} />
         </div>
         {data.complaints.recent.length > 0 ? (
           <ul className="space-y-2">
@@ -131,12 +136,12 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Visitors"
-        action={{ href: `/societies/${societyId}/visitors`, label: "View visitors" }}
+        title={t("dashboard.visitors")}
+        action={{ href: `/societies/${societyId}/visitors`, label: t("dashboard.viewVisitors") }}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Metric label="Pending approvals" value={data.visitors.pendingApprovals} />
-          <Metric label="Checked in" value={data.visitors.checkedIn} />
+          <Metric label={t("dashboard.pendingApprovals")} value={data.visitors.pendingApprovals} />
+          <Metric label={t("dashboard.checkedIn")} value={data.visitors.checkedIn} />
         </div>
         {data.visitors.recent.length > 0 ? (
           <ul className="space-y-2">
@@ -155,12 +160,12 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
       </DashboardSection>
 
       <DashboardSection
-        title="Notices"
-        action={{ href: `/societies/${societyId}/notices/new`, label: "Create notice" }}
+        title={t("dashboard.notices")}
+        action={{ href: `/societies/${societyId}/notices/new`, label: t("dashboard.createNotice") }}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Metric label="Drafts" value={data.notices.draftCount} />
-          <Metric label="Published" value={data.notices.publishedCount} />
+          <Metric label={t("dashboard.drafts")} value={data.notices.draftCount} />
+          <Metric label={t("dashboard.published")} value={data.notices.publishedCount} />
         </div>
         {data.notices.recent.length > 0 ? (
           <ul className="space-y-2">
@@ -178,7 +183,7 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
         ) : null}
       </DashboardSection>
 
-      <DashboardSection title="Recent activity">
+      <DashboardSection title={t("dashboard.recentActivity")}>
         <ActivityList
           societyId={societyId}
           items={data.recentActivity}

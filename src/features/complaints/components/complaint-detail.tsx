@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { formatStatus } from "@/components/ui/status-tone";
@@ -37,7 +39,7 @@ export function ComplaintDetailView({
   currentUserId,
 }: ComplaintDetailViewProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
 
@@ -61,7 +63,7 @@ export function ComplaintDetailView({
   }
 
   function run(action: () => Promise<unknown>, successMessage: string) {
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -204,7 +206,7 @@ export function ComplaintDetailView({
       {canManage ? (
         <form
           className="space-y-3 rounded-lg border border-border bg-card p-4"
-          action={(formData) => {
+          noValidate onSubmit={preservedSubmit((formData) => {
             const notes = String(formData.get("resolutionNotes") ?? "").trim();
             if (notes.length < 3) {
               setStatus("error");
@@ -215,7 +217,7 @@ export function ComplaintDetailView({
               const token = await getBrowserAccessToken();
               await resolveComplaint(token!, complaintId, notes);
             }, "Complaint resolved.");
-          }}
+          })}
         >
           <h3 className="text-base font-semibold text-foreground">Resolve</h3>
           <Field
@@ -282,7 +284,7 @@ export function ComplaintDetailView({
         </ul>
         <form
           className="space-y-3 rounded-lg border border-border bg-card p-4"
-          action={(formData) => {
+          noValidate onSubmit={preservedSubmit((formData, form) => {
             const body = String(formData.get("body") ?? "").trim();
             if (!body) {
               setStatus("error");
@@ -292,8 +294,9 @@ export function ComplaintDetailView({
             run(async () => {
               const token = await getBrowserAccessToken();
               await addComplaintComment(token!, complaintId, body);
+              form.reset();
             }, "Comment added.");
-          }}
+          })}
         >
           <Field id="body" name="body" label="Add comment" />
           <Button type="submit" disabled={pending}>

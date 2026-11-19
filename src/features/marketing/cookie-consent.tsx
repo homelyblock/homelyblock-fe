@@ -9,6 +9,7 @@ import {
   preferencesFor,
   readPreferencesFromDocumentCookie,
 } from "@/features/marketing/cookie-preferences";
+import { useI18n } from "@/i18n/provider";
 
 const COOKIE_PREFERENCES_CHANGED = "ls-cookie-preferences-changed";
 
@@ -47,6 +48,7 @@ export function OpenCookiePreferences({
 }
 
 export function CookieConsent() {
+  const { t } = useI18n();
   const cookie = useSyncExternalStore(subscribe, getClientSnapshot, () => null);
   const [reopened, setReopened] = useState(false);
 
@@ -73,22 +75,20 @@ export function CookieConsent() {
         className="mx-auto w-full max-w-3xl rounded-2xl border border-border bg-card p-4 text-foreground shadow-sm sm:p-5"
       >
         <h2 id="cookie-preferences-title" className="text-base font-semibold">
-          Cookie preferences
+          {t("cookies.title")}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          HomelyBlock uses essential cookies to keep you signed in. It does not set analytics or marketing cookies, and choosing Accept all does not turn any tracking on.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("cookies.body")}</p>
         <ul className="mt-3 space-y-2 text-sm">
           <li>
-            <strong className="font-medium">Essential.</strong> Always on. These keep the sign-in session.
+            <strong className="font-medium">{t("cookies.essential")}</strong> {t("cookies.essentialBody")}
           </li>
           <li>
-            <strong className="font-medium">Functional, analytics, and marketing.</strong> Not used. These stay off.
+            <strong className="font-medium">{t("cookies.unused")}</strong> {t("cookies.unusedBody")}
           </li>
         </ul>
         {saved ? (
           <p className="mt-3 text-sm text-muted-foreground">
-            Current choice: {saved.choice.replaceAll("_", " ")}. You can change it at any time.
+            {t("cookies.current", { choice: saved.choice.replaceAll("_", " ") })}
           </p>
         ) : null}
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -97,21 +97,21 @@ export function CookieConsent() {
             className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground"
             onClick={() => choose("accept_all")}
           >
-            Accept all
+            {t("cookies.accept")}
           </button>
           <button
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-medium"
             onClick={() => choose("reject_non_essential")}
           >
-            Reject non-essential
+            {t("cookies.reject")}
           </button>
           <button
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-medium"
             onClick={() => choose("custom")}
           >
-            Save preferences
+            {t("cookies.save")}
           </button>
         </div>
       </section>

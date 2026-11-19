@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { controlClassName } from "@/components/ui/control";
+import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/i18n/provider";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
 import { ApiError } from "@/services/api-client";
 import { searchUsers } from "../api";
@@ -33,6 +35,7 @@ export function UserSearchSelector({
   societyId,
   canSearch,
 }: UserSearchSelectorProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
@@ -84,7 +87,7 @@ export function UserSearchSelector({
               setQuery("");
             }}
           >
-            Change
+            {t("search.change")}
           </button>
         </div>
       ) : (
@@ -102,18 +105,16 @@ export function UserSearchSelector({
             className={controlClassName}
           />
           {debounced.length > 0 && debounced.length < 2 ? (
-            <p className="text-xs text-muted-foreground">Type at least 2 characters.</p>
+            <p className="text-xs text-muted-foreground">{t("search.minChars")}</p>
           ) : null}
-          {search.isLoading ? (
-            <p className="text-sm text-muted-foreground" role="status">
-              Searching…
-            </p>
+          {search.isFetching ? (
+            <Spinner label={t("search.searching")} />
           ) : null}
           {search.isError ? (
             <p role="alert" className="text-sm text-destructive">
               {search.error instanceof ApiError
                 ? search.error.message
-                : "Unable to search users."}
+                : t("search.failed")}
             </p>
           ) : null}
           {search.isSuccess && search.data.length === 0 ? (

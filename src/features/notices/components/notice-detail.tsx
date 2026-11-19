@@ -1,9 +1,10 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatStatus } from "@/components/ui/status-tone";
@@ -33,7 +34,7 @@ export function NoticeDetailView({
 }: NoticeDetailProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -65,7 +66,7 @@ export function NoticeDetailView({
     action: () => Promise<unknown>,
     successMessage: string,
   ) {
-    startTransition(async () => {
+    guard(async () => {
       try {
         await action();
         setStatus("success");

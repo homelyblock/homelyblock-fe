@@ -1,11 +1,14 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import { createBuilding, fetchBuildings, updateBuilding } from "../api";
 import { createBuildingSchema } from "../schemas";
@@ -17,8 +20,9 @@ type BuildingsPanelProps = {
 };
 
 export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -36,7 +40,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
     },
   });
 
-  function onSubmit(formData: FormData) {
+  function onSubmit(formData: FormData, form: HTMLFormElement) {
     const parsed = createBuildingSchema.safeParse({
       name: formData.get("name"),
       code: formData.get("code"),
@@ -57,7 +61,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -74,6 +78,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
 
         setStatus("success");
         setEditing(null);
+        form.reset();
         await queryClient.invalidateQueries({
           queryKey: ["buildings", societyId],
         });
@@ -95,7 +100,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
   if (query.isLoading) {
     return (
       <p className="text-sm text-muted-foreground" role="status">
-        Loading buildings…
+        {t("forms.loadingBuildings")}
       </p>
     );
   }
@@ -108,7 +113,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
       >
         {query.error instanceof ApiError
           ? query.error.message
-          : "Unable to load buildings."}
+          : t("forms.buildingsFailed")}
       </p>
     );
   }
@@ -118,9 +123,9 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Buildings / wings</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("forms.buildingsTitle")}</h2>
         {buildings.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No buildings yet.</p>
+          <p className="text-sm text-muted-foreground">{t("forms.noBuildings")}</p>
         ) : (
           <ul className="divide-y divide-border rounded-lg border border-border bg-card">
             {buildings.map((building) => (
@@ -132,7 +137,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
                   <p className="text-sm font-medium text-foreground">
                     {building.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">Code {building.code}</p>
+                  <p className="text-xs text-muted-foreground">{t("forms.codeValue", { code: building.code })}</p>
                 </div>
                 {canManage ? (
                   <Button
@@ -145,7 +150,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
                       setMessage(undefined);
                     }}
                   >
-                    Edit
+                    {t("common.edit")}
                   </Button>
                 ) : null}
               </li>
@@ -155,19 +160,19 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
       </div>
 
       {canManage ? (
-        <form action={onSubmit} className="space-y-4 rounded-lg border border-border bg-card px-5 py-5">
+        <form noValidate onSubmit={preservedSubmit(onSubmit)} className="space-y-4 rounded-lg border border-border bg-card px-5 py-5">
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              {editing ? "Edit building" : "Add building"}
+              {editing ? t("forms.editBuilding") : t("forms.addBuilding")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Codes must be unique within this society.
+              {t("forms.codeUnique")}
             </p>
           </div>
           <Field
             id="building-name"
             name="name"
-            label="Name"
+            label={t("forms.name")}
             defaultValue={editing?.name ?? ""}
             key={`name-${editing?.id ?? "new"}`}
             error={fieldErrors.name}
@@ -175,7 +180,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
           <Field
             id="building-code"
             name="code"
-            label="Code"
+            label={t("forms.code")}
             defaultValue={editing?.code ?? ""}
             key={`code-${editing?.id ?? "new"}`}
             error={fieldErrors.code}
@@ -183,7 +188,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
           <AuthStatus status={status} message={message} />
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving…" : editing ? "Update building" : "Create building"}
+              {pending ? t("common.saving") : editing ? t("forms.updateBuilding") : t("forms.createBuilding")}
             </Button>
             {editing ? (
               <Button
@@ -192,7 +197,7 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
                 disabled={pending}
                 onClick={() => setEditing(null)}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             ) : null}
           </div>

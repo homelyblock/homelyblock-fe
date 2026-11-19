@@ -13,11 +13,11 @@ const tones = {
 
 export function Alert({ tone = "error", children }: AlertProps) {
   return (
-    <p
+    <div
       role={tone === "error" ? "alert" : "status"}
       className={`rounded-xl border border-l-4 px-4 py-3 text-sm leading-6 ${tones[tone]}`}
     >
       {children}
-    </p>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Logo } from "@/components/brand/logo";
+import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { AccountMenu } from "./account-menu";
 import { Breadcrumbs } from "./breadcrumbs";
 
@@ -23,6 +24,7 @@ export function TopBar({
           <Breadcrumbs />
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher />
           <AccountMenu label={label} email={email} signOutReturnTo={signOutReturnTo} />
         </div>
       </div>

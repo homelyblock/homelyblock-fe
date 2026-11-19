@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName } from "@/components/ui/control";
 import { Field } from "@/features/auth/components/field";
@@ -17,7 +19,7 @@ type EditSocietyFormProps = {
 
 export function EditSocietyForm({ society }: EditSocietyFormProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
 
@@ -29,7 +31,7 @@ export function EditSocietyForm({ society }: EditSocietyFormProps) {
       return;
     }
 
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -68,7 +70,7 @@ export function EditSocietyForm({ society }: EditSocietyFormProps) {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4">
+    <form noValidate onSubmit={preservedSubmit(onSubmit)} className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground">Edit society</h2>
       <AuthStatus status={status} message={message} />
       <Field

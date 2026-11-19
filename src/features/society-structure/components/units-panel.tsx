@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName, filterControlClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
@@ -24,7 +26,7 @@ type UnitsPanelProps = {
 
 export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -63,7 +65,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
     return map;
   }, [buildingsQuery.data]);
 
-  function onSubmit(formData: FormData) {
+  function onSubmit(formData: FormData, form: HTMLFormElement) {
     const parsed = createUnitSchema.safeParse({
       buildingId: editing?.buildingId ?? formData.get("buildingId"),
       unitNumber: formData.get("unitNumber"),
@@ -85,7 +87,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -105,6 +107,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
 
         setStatus("success");
         setEditing(null);
+        form.reset();
         await queryClient.invalidateQueries({ queryKey: ["units", societyId] });
       } catch (error) {
         setStatus("error");
@@ -214,7 +217,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
 
       {canManage && buildings.length > 0 ? (
         <form
-          action={onSubmit}
+          noValidate onSubmit={preservedSubmit(onSubmit)}
           className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
         >
           <div>

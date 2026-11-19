@@ -3,9 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { productNav } from "@/features/marketing/site-nav";
+import { useI18n } from "@/i18n/provider";
+
+const LINK_KEYS: Record<string, string> = {
+  "/features": "marketing.features",
+  "/how-it-works": "marketing.how",
+  "/faq": "marketing.faq",
+  "/contact": "marketing.contact",
+};
 
 export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="relative lg:hidden">
@@ -14,10 +23,10 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
         className="relative z-30 flex h-10 items-center rounded-xl border border-border bg-card px-3 text-sm font-medium"
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? t("marketing.closeMenu") : t("marketing.openMenu")}
         onClick={() => setOpen((current) => !current)}
       >
-        Menu
+        {t("marketing.menu")}
       </button>
       {open ? (
         <nav
@@ -26,7 +35,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
           className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-border bg-card p-2 shadow-sm"
         >
           <Link href="/" className="block rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
-            Home
+            {t("marketing.home")}
           </Link>
           {productNav.map((link) => (
             <Link
@@ -35,23 +44,23 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
               className="block rounded-md px-3 py-2 text-sm hover:bg-muted"
               onClick={() => setOpen(false)}
             >
-              {link.label}
+              {t(LINK_KEYS[link.href] ?? link.label)}
             </Link>
           ))}
           <Link href="/help" className="block rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
-            Help Center
+            {t("marketing.help")}
           </Link>
           {signedIn ? (
             <Link href="/societies" className="block rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
-              Open app
+              {t("marketing.openApp")}
             </Link>
           ) : (
             <>
               <Link href="/sign-in" className="block rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
-                Login
+                {t("marketing.login")}
               </Link>
               <Link href="/sign-up" className="block rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
-                Get started
+                {t("marketing.getStarted")}
               </Link>
             </>
           )}

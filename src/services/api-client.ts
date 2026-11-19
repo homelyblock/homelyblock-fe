@@ -3,13 +3,29 @@ import { getPublicConfig } from "@/config/public-env";
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
+  readonly details: string[];
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    details: string[] = [],
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
+}
+
+const ATTENTION_REFRESH = "hb-attention-refresh";
+
+function notifyAttentionRefresh(method: string | undefined) {
+  if (typeof window === "undefined") return;
+  const verb = (method ?? "GET").toUpperCase();
+  if (verb === "GET" || verb === "HEAD") return;
+  window.dispatchEvent(new Event(ATTENTION_REFRESH));
 }
 
 export type ApiRequestOptions = RequestInit & {
@@ -57,6 +73,8 @@ export async function apiRequest<T>(
     throw error;
   }
 
+  notifyAttentionRefresh(rest.method);
+
   if (response.status === 204) {
     return undefined as T;
   }
@@ -79,13 +97,28 @@ async function toApiError(response: Response): Promise<ApiError> {
       const parsed = JSON.parse(body) as {
         message?: unknown;
         code?: unknown;
+        details?: unknown;
       };
+      const details = Array.isArray(parsed.details)
+        ? parsed.details.filter(
+            (item): item is string => typeof item === "string" && item.length > 0,
+          )
+        : [];
       if (typeof parsed.message === "string" && parsed.message.length > 0) {
         message = parsed.message;
+      }
+      if (
+        details.length > 0 &&
+        (message === "Validation failed" ||
+          message === "Request failed" ||
+          message === response.statusText)
+      ) {
+        message = details.join(" ");
       }
       if (typeof parsed.code === "string" && parsed.code.length > 0) {
         code = parsed.code;
       }
+      return new ApiError(message, response.status, code, details);
     } catch {
       message = body;
     }

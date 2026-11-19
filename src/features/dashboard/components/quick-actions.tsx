@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useI18n } from "@/i18n/provider";
 
 type QuickActionsProps = {
   societyId: string;
@@ -11,6 +14,7 @@ export function QuickActions({
   actions,
   catalog,
 }: QuickActionsProps) {
+  const { t } = useI18n();
   const items = actions
     .map((key) => {
       const entry = catalog[key];
@@ -31,7 +35,9 @@ export function QuickActions({
           href={item.href(societyId)}
           className="rounded-xl border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground shadow-sm hover:-translate-y-px hover:border-teal/40"
         >
-          {item.label}
+          {t(`actions.${item.key}`) === `actions.${item.key}`
+            ? item.label
+            : t(`actions.${item.key}`)}
         </Link>
       ))}
     </div>

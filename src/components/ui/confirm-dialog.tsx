@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useId, useRef } from "react";
+import { useI18n } from "@/i18n/provider";
 import { Button } from "./button";
 
 type ConfirmDialogProps = {
@@ -31,6 +32,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const { t } = useI18n();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -71,7 +73,7 @@ export function ConfirmDialog({
         ) : null}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" disabled={pending} onClick={onCancel}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -82,11 +84,12 @@ export function ConfirmDialog({
                 : undefined
             }
             disabled={pending}
+            aria-busy={pending}
             onClick={() => {
               if (!pending) onConfirm();
             }}
           >
-            {pending ? "Working…" : confirmLabel}
+            {pending ? t("common.working") : confirmLabel}
           </Button>
         </div>
       </div>

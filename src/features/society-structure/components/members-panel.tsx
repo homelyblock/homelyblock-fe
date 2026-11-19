@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useRef, useState } from "react";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -27,7 +29,7 @@ type MembersPanelProps = {
 
 export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -66,7 +68,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     },
   });
 
-  function onCreate(formData: FormData) {
+  function onCreate(formData: FormData, form: HTMLFormElement) {
     const parsed = createMembershipSchema.safeParse({
       userId: selectedUser?.id ?? "",
       role: formData.get("role"),
@@ -89,7 +91,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -109,6 +111,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
           "Invitation created. They can see it after signing in, and they cannot open the society until you activate the membership.",
         );
         setSelectedUser(null);
+        form.reset();
         await queryClient.invalidateQueries({
           queryKey: ["members", societyId],
         });
@@ -164,7 +167,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -237,7 +240,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     if (!member || pending || suspendLock.current) return;
     suspendLock.current = true;
     setSuspendError(undefined);
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -272,7 +275,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
 
   function changeStatus(memberId: string, status: "ACTIVE") {
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -381,7 +384,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
 
       {canManage && !editing ? (
         <form
-          action={onCreate}
+          noValidate onSubmit={preservedSubmit(onCreate)}
           className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
         >
           <div>
@@ -458,7 +461,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
 
       {canManage && editing ? (
         <form
-          action={onUpdate}
+          noValidate onSubmit={preservedSubmit(onUpdate)}
           className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
           key={editing.id}
         >

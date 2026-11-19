@@ -1,7 +1,9 @@
 "use client";
 
+import { useSubmitGuard } from "@/lib/use-submit-guard";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { preservedSubmit } from "@/lib/form-submit";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName } from "@/components/ui/control";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -31,7 +33,7 @@ export function HouseholdMemberForm({
 }: HouseholdMemberFormProps) {
   const router = useRouter();
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -58,7 +60,7 @@ export function HouseholdMemberForm({
     }
 
     setFieldErrors({});
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -95,7 +97,7 @@ export function HouseholdMemberForm({
   function onDeactivate() {
     if (!member) return;
     setConfirmDeactivate(false);
-    startTransition(async () => {
+    guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
@@ -117,7 +119,7 @@ export function HouseholdMemberForm({
 
   return (
     <>
-    <form action={onSubmit} className="space-y-4">
+    <form noValidate onSubmit={preservedSubmit(onSubmit)} className="space-y-4">
       <Field
         id="name"
         name="name"
