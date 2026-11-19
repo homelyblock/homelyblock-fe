@@ -28,7 +28,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center shadow-sm">
+    <div className="rounded-xl border border-border bg-card px-6 py-10 text-center">
       <p className="text-base font-semibold text-foreground">{title}</p>
       {description ? (
         <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function StatusPage({
   return (
     <main id="main" className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
       <div className="motion-rise w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <p className="text-sm font-medium tracking-wide text-teal uppercase">{code}</p>
+        <p className="text-sm font-medium tracking-wide text-forest uppercase">{code}</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
         {children ? <div className="mt-6 flex flex-wrap gap-3">{children}</div> : null}

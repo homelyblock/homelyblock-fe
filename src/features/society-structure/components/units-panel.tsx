@@ -149,7 +149,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-lg font-semibold text-foreground">Units / flats</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">Units / flats</h2>
           <div className="space-y-1.5">
             <label
               htmlFor="unit-filter-building"
@@ -180,7 +180,7 @@ export function UnitsPanel({ societyId, canManage }: UnitsPanelProps) {
         ) : units.length === 0 ? (
           <p className="text-sm text-muted-foreground">No units yet.</p>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {units.map((unit) => (
               <li
                 key={unit.id}

@@ -9,10 +9,12 @@ export async function PublicPage({
   title,
   description,
   children,
+  layout = "article",
 }: {
   title: string;
   description: string;
   children: ReactNode;
+  layout?: "article" | "wide";
 }) {
   const signedIn = Boolean(
     getSupabasePublicConfig() && (await getServerAccessToken()),
@@ -20,15 +22,25 @@ export async function PublicPage({
 
   return (
     <MarketingFrame signedIn={signedIn}>
-      <article className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
-          <div className="mt-8 space-y-4 text-sm leading-7 break-words text-foreground [&_a]:underline [&_a]:underline-offset-4 [&_h2]:pt-2 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:tracking-tight">
+      {layout === "wide" ? (
+        <div className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6">
+          <header className="max-w-2xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">{title}</h1>
+            <p className="mt-3 text-base leading-7 text-muted-foreground">{description}</p>
+          </header>
+          <div className="mt-10">{children}</div>
+        </div>
+      ) : (
+        <article className="mx-auto w-full max-w-3xl px-4 py-14 sm:px-6">
+          <header>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
+            <p className="mt-3 text-base leading-7 text-muted-foreground">{description}</p>
+          </header>
+          <div className="mt-8 space-y-4 text-[15px] leading-7 break-words text-foreground [&_a]:underline [&_a]:underline-offset-4 [&_h2]:pt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:tracking-tight">
             {children}
           </div>
-        </div>
-      </article>
+        </article>
+      )}
     </MarketingFrame>
   );
 }

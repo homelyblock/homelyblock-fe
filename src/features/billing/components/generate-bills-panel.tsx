@@ -153,7 +153,7 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Generate bills</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">Generate bills</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Preview eligible units, generate draft invoices in a transaction, then
           publish for the billing period.

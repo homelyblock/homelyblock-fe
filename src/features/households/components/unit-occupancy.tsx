@@ -111,7 +111,7 @@ export function UnitOccupancy({ societyId, unitId }: UnitOccupancyProps) {
             ← Resident directory
           </Link>
         </p>
-        <h2 className="mt-3 text-lg font-semibold text-foreground">
+        <h2 className="mt-3 text-xl font-semibold tracking-tight text-foreground">
           Unit occupancy
         </h2>
         {query.data ? (

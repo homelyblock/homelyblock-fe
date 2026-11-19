@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/layout/back-link";
 import { redirect } from "next/navigation";
 import { redirectForLoadFailure } from "@/features/shell/navigation";
 import { getSupabasePublicConfig } from "@/config/supabase-public-env";
@@ -35,14 +35,7 @@ export default async function SocietyBillDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-          <Link
-            href={`/societies/${societyId}/billing`}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            ← Back to billing
-          </Link>
-        </p>
+      <BackLink href={`/societies/${societyId}/billing`} labelKey="nav.billing" />
         <BillDetailView
             societyId={societyId}
             billId={billId}

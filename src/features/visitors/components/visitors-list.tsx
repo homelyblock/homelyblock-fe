@@ -56,7 +56,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Visitors</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">Visitors</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {canManage
               ? "Approvals, walk-ins, and check-in."
@@ -96,14 +96,14 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
           {canManage ? (
             <Link
               href={`/societies/${societyId}/visitors/walk-in`}
-              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary/90"
+              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
             >
               Register walk-in
             </Link>
           ) : (
             <Link
               href={`/societies/${societyId}/visitors/expected`}
-              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary/90"
+              className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
             >
               Register visitor
             </Link>
@@ -133,7 +133,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
       ) : null}
 
       {visitors.length > 0 ? (
-        <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {visitors.map((visitor) => (
             <li key={visitor.id}>
               <Link

@@ -70,7 +70,7 @@ export function ComplaintsOverview({
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
             {canManage ? "Complaints" : "My complaints"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -82,7 +82,7 @@ export function ComplaintsOverview({
         {!canManage ? (
           <Link
             href={`/societies/${societyId}/complaints/new`}
-            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90"
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
           >
             Submit complaint
           </Link>
@@ -122,7 +122,7 @@ export function ComplaintsOverview({
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {label}
                   </p>
-                  <p className="mt-1 text-lg font-semibold text-foreground">
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">
                     {value}
                   </p>
                 </div>

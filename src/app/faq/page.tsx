@@ -31,16 +31,16 @@ export const instant = false;
 
 export default function FaqPage() {
   return (
-    <PublicPage title="Frequently asked questions" description="Answers match the product as it works today.">
-      <div className="space-y-6">
+    <PublicPage layout="wide" title="Frequently asked questions" description="Answers match the product as it works today.">
+      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {faqs.map(([question, answer]) => (
-          <section key={question}>
-            <h2>{question}</h2>
-            <p>{answer}</p>
-          </section>
+          <details key={question} className="px-5 py-4">
+            <summary className="cursor-pointer text-sm font-medium">{question}</summary>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{answer}</p>
+          </details>
         ))}
       </div>
-      <p>
+      <p className="mt-6 text-sm leading-6 text-muted-foreground [&_a]:font-medium [&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4">
         Still stuck? Read the <Link href="/help">Help Center</Link> or <Link href="/contact">contact the platform</Link>.
       </p>
     </PublicPage>

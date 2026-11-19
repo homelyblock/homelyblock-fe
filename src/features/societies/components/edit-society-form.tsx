@@ -71,7 +71,7 @@ export function EditSocietyForm({ society }: EditSocietyFormProps) {
 
   return (
     <form noValidate onSubmit={preservedSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-lg font-semibold text-foreground">Edit society</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-foreground">Edit society</h2>
       <AuthStatus status={status} message={message} />
       <Field
         id="edit-name"

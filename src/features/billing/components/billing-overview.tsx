@@ -111,7 +111,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
             {canManage ? "Billing" : "My bills"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -130,7 +130,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
             </Link>
             <Link
               href={`/societies/${societyId}/billing/generate`}
-              className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90"
+              className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
             >
               Generate bills
             </Link>
@@ -246,7 +246,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {label}
                   </p>
-                  <p className="mt-1 text-lg font-semibold text-foreground">
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">
                     {formatMoney(value)}
                   </p>
                 </div>
@@ -272,7 +272,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
               ? " on this page"
               : ""}
           </p>
-          <p className="mt-1 text-lg font-semibold text-foreground">
+          <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">
             {billsQuery.isLoading
               ? "…"
               : formatMoney(outstandingTotal || "0.00")}

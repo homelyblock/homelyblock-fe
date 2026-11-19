@@ -1,69 +1,90 @@
+export const NAV_GROUPS = [
+  "overview",
+  "community",
+  "communication",
+  "operations",
+  "finance",
+] as const;
+
+export type NavGroup = (typeof NAV_GROUPS)[number];
+
 export const SOCIETY_NAV_ITEMS = [
   {
     key: "overview",
     href: (id: string) => `/societies/${id}`,
     label: "Overview",
     adminOnly: false,
+    group: "overview",
   },
   {
     key: "buildings",
     href: (id: string) => `/societies/${id}/buildings`,
     label: "Buildings",
     adminOnly: true,
+    group: "community",
   },
   {
     key: "units",
     href: (id: string) => `/societies/${id}/units`,
     label: "Units",
     adminOnly: true,
+    group: "community",
   },
   {
     key: "members",
     href: (id: string) => `/societies/${id}/members`,
     label: "Members",
     adminOnly: true,
+    group: "community",
   },
   {
     key: "household",
     href: (id: string) => `/societies/${id}/household`,
     label: "Household",
     adminOnly: false,
+    group: "community",
   },
   {
     key: "residents",
     href: (id: string) => `/societies/${id}/residents`,
     label: "Residents",
     adminOnly: true,
+    group: "community",
   },
   {
     key: "notices",
     href: (id: string) => `/societies/${id}/notices`,
     label: "Notices",
     adminOnly: false,
+    group: "communication",
   },
   {
     key: "visitors",
     href: (id: string) => `/societies/${id}/visitors`,
     label: "Visitors",
     adminOnly: false,
+    group: "operations",
   },
   {
     key: "billing",
     href: (id: string) => `/societies/${id}/billing`,
     label: "Billing",
     adminOnly: false,
+    group: "finance",
   },
   {
     key: "complaints",
     href: (id: string) => `/societies/${id}/complaints`,
     label: "Complaints",
     adminOnly: false,
+    group: "operations",
   },
   {
     key: "services",
     href: (id: string) => `/societies/${id}/services`,
     label: "Services",
     adminOnly: false,
+    group: "operations",
   },
 ] as const;
 

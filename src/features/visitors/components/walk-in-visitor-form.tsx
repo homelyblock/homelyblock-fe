@@ -115,7 +115,7 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
       className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
     >
       <div>
-        <h2 className="text-lg font-semibold text-foreground">
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">
           Register walk-in visitor
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">

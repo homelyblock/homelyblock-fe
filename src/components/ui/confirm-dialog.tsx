@@ -80,7 +80,7 @@ export function ConfirmDialog({
             variant={tone === "danger" ? "destructive" : "default"}
             className={
               tone === "danger"
-                ? "bg-destructive text-white hover:bg-destructive/90"
+                ? "bg-destructive text-[var(--theme-bg)] hover:bg-destructive/90"
                 : undefined
             }
             disabled={pending}

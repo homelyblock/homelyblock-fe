@@ -11,13 +11,13 @@ export function Logo({ href = "/", tone = "default" }: LogoProps) {
     <Link
       href={href}
       className={`inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight ${
-        inverse ? "text-primary-foreground" : "text-foreground"
+        inverse ? "text-forest-foreground" : "text-foreground"
       }`}
     >
       <span
         aria-hidden
         className={`flex size-8 items-center justify-center rounded-md ${
-          inverse ? "bg-[var(--theme-accent)] text-[var(--theme-surface)]" : "bg-primary text-primary-foreground"
+          inverse ? "bg-primary text-primary-foreground" : "bg-forest text-forest-foreground"
         }`}
       >
         <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8">

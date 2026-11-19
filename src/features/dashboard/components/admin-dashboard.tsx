@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { LoadingSkeleton } from "@/components/layout/status-views";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
 import { ApiError } from "@/services/api-client";
-import { fetchAdminDashboard } from "../api";
+import { fetchAdminDashboard, fetchAttention } from "../api";
 import { ADMIN_ACTION_LINKS, formatMoney } from "../links";
 import { ActivityList } from "./activity-list";
 import { DashboardSection, Metric, RecordLink } from "./metric";
@@ -52,19 +52,19 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
   if (!data) return null;
   const period =
     data.maintenance.periodYear && data.maintenance.periodMonth
-      ? `Billing period ${data.maintenance.periodYear}-${String(data.maintenance.periodMonth).padStart(2, "0")}`
-      : "No billing period selected";
+      ? `${data.maintenance.periodYear}-${String(data.maintenance.periodMonth).padStart(2, "0")}`
+      : t("dashboard.noPeriod");
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            {data.society.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {t("dashboard.adminSubtitle", { period })}
           </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+            {data.society.name}
+          </h1>
         </div>
         <StatusBadge value={data.society.status} />
       </div>
@@ -75,48 +75,59 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
         catalog={ADMIN_ACTION_LINKS}
       />
 
-      <DashboardSection title={t("dashboard.occupancy")}>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label={t("dashboard.buildings")} value={data.occupancy.totalBuildings} />
-          <Metric label={t("dashboard.units")} value={data.occupancy.totalUnits} />
-          <Metric label={t("dashboard.occupied")} value={data.occupancy.occupiedUnits} />
-          <Metric label={t("dashboard.vacant")} value={data.occupancy.vacantUnits} />
-          <Metric label={t("dashboard.activeUnits")} value={data.occupancy.activeUnits} />
-          <Metric label={t("dashboard.residents")} value={data.occupancy.activeResidentMemberships} />
-          <Metric label={t("dashboard.administrators")} value={data.occupancy.activeAdminMemberships} />
-          <Metric label={t("dashboard.householdMembers")} value={data.occupancy.activeHouseholdMembers} />
-        </div>
-        <p className="text-xs leading-5 text-muted-foreground">
-          {t("dashboard.occupancyDefinition")}
-        </p>
-      </DashboardSection>
+      <AttentionPanel societyId={societyId} />
 
-      <DashboardSection
-        title={t("dashboard.maintenance")}
-        action={{ href: `/societies/${societyId}/billing`, label: t("dashboard.openBilling") }}
-      >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label={t("dashboard.billed")} value={formatMoney(data.maintenance.totalBilled)} />
-          <Metric label={t("dashboard.collected")} value={formatMoney(data.maintenance.totalCollected)} />
-          <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.totalOutstanding)} />
-          <Metric label={t("dashboard.overdue")} value={formatMoney(data.maintenance.overdueAmount)} />
-          <Metric label={t("dashboard.unpaidBills")} value={data.maintenance.unpaidInvoiceCount} />
-          <Metric label={t("dashboard.partiallyPaid")} value={data.maintenance.partiallyPaidInvoiceCount} />
-          <Metric label={t("dashboard.paidBills")} value={data.maintenance.paidInvoiceCount} />
-        </div>
-        <p className="text-xs text-muted-foreground">{t("dashboard.amountsNote")}</p>
-      </DashboardSection>
+      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <DashboardSection title={t("dashboard.communitySnapshot")}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Metric label={t("dashboard.buildings")} value={data.occupancy.totalBuildings} />
+            <Metric label={t("dashboard.units")} value={data.occupancy.totalUnits} />
+            <Metric label={t("dashboard.occupied")} value={data.occupancy.occupiedUnits} />
+            <Metric label={t("dashboard.vacant")} value={data.occupancy.vacantUnits} />
+          </div>
+          <p className="text-xs leading-5 text-muted-foreground">
+            {t("dashboard.residents")}: {data.occupancy.activeResidentMemberships}
+            {" · "}
+            {t("dashboard.administrators")}: {data.occupancy.activeAdminMemberships}
+            {" · "}
+            {t("dashboard.householdMembers")}: {data.occupancy.activeHouseholdMembers}
+          </p>
+          <p className="text-xs leading-5 text-muted-foreground">
+            {t("dashboard.occupancyDefinition")}
+          </p>
+        </DashboardSection>
 
+        <DashboardSection
+          title={t("dashboard.financeSnapshot")}
+          action={{ href: `/societies/${societyId}/billing`, label: t("dashboard.openBilling") }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.totalOutstanding)} />
+            <Metric label={t("dashboard.overdue")} value={formatMoney(data.maintenance.overdueAmount)} />
+          </div>
+          <p className="text-xs leading-5 text-muted-foreground">
+            {t("dashboard.billed")}: {formatMoney(data.maintenance.totalBilled)}
+            {" · "}
+            {t("dashboard.collected")}: {formatMoney(data.maintenance.totalCollected)}
+            {" · "}
+            {t("dashboard.unpaidBills")}: {data.maintenance.unpaidInvoiceCount}
+          </p>
+          <p className="text-xs text-muted-foreground">{t("dashboard.amountsNote")}</p>
+        </DashboardSection>
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-3">
       <DashboardSection
         title={t("dashboard.complaints")}
         action={{ href: `/societies/${societyId}/complaints`, label: t("dashboard.viewComplaints") }}
       >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label={t("dashboard.open")} value={data.complaints.open} />
-          <Metric label={t("dashboard.inProgress")} value={data.complaints.inProgress} />
-          <Metric label={t("dashboard.resolved")} value={data.complaints.resolved} />
-          <Metric label={t("dashboard.highOrUrgent")} value={data.complaints.highOrUrgent} />
-        </div>
+        <p className="text-xs text-muted-foreground">
+          {t("dashboard.open")} {data.complaints.open}
+          {" · "}
+          {t("dashboard.inProgress")} {data.complaints.inProgress}
+          {" · "}
+          {t("dashboard.highOrUrgent")} {data.complaints.highOrUrgent}
+        </p>
         {data.complaints.recent.length > 0 ? (
           <ul className="space-y-2">
             {data.complaints.recent.slice(0, 5).map((complaint) => (
@@ -131,7 +142,7 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">No complaints yet.</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard.noComplaints")}</p>
         )}
       </DashboardSection>
 
@@ -139,10 +150,11 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
         title={t("dashboard.visitors")}
         action={{ href: `/societies/${societyId}/visitors`, label: t("dashboard.viewVisitors") }}
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Metric label={t("dashboard.pendingApprovals")} value={data.visitors.pendingApprovals} />
-          <Metric label={t("dashboard.checkedIn")} value={data.visitors.checkedIn} />
-        </div>
+        <p className="text-xs text-muted-foreground">
+          {t("dashboard.pendingApprovals")} {data.visitors.pendingApprovals}
+          {" · "}
+          {t("dashboard.checkedIn")} {data.visitors.checkedIn}
+        </p>
         {data.visitors.recent.length > 0 ? (
           <ul className="space-y-2">
             {data.visitors.recent.slice(0, 5).map((visitor) => (
@@ -163,10 +175,11 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
         title={t("dashboard.notices")}
         action={{ href: `/societies/${societyId}/notices/new`, label: t("dashboard.createNotice") }}
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Metric label={t("dashboard.drafts")} value={data.notices.draftCount} />
-          <Metric label={t("dashboard.published")} value={data.notices.publishedCount} />
-        </div>
+        <p className="text-xs text-muted-foreground">
+          {t("dashboard.drafts")} {data.notices.draftCount}
+          {" · "}
+          {t("dashboard.published")} {data.notices.publishedCount}
+        </p>
         {data.notices.recent.length > 0 ? (
           <ul className="space-y-2">
             {data.notices.recent.map((notice) => (
@@ -182,25 +195,64 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
           </ul>
         ) : null}
       </DashboardSection>
+      </div>
 
       <DashboardSection title={t("dashboard.recentActivity")}>
         <ActivityList
           societyId={societyId}
           items={data.recentActivity}
-          emptyMessage="No recent activity yet."
+          emptyMessage={t("dashboard.noActivity")}
         />
       </DashboardSection>
-
-      <p className="text-sm text-muted-foreground">
-        Society profile settings are below.{" "}
-        <Link href={`/societies/${societyId}/billing`} className="font-medium text-teal hover:underline">
-          Billing
-        </Link>
-        {" · "}
-        <Link href={`/societies/${societyId}/services`} className="font-medium text-teal hover:underline">
-          Services
-        </Link>
-      </p>
     </div>
+  );
+}
+
+function AttentionPanel({ societyId }: { societyId: string }) {
+  const { t } = useI18n();
+  const query = useQuery({
+    queryKey: ["attention", societyId],
+    queryFn: async () => {
+      const token = await getBrowserAccessToken();
+      if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+      return fetchAttention(token, societyId);
+    },
+  });
+  const counts = query.data?.counts;
+  const items = [
+    { key: "complaints", count: counts?.complaints ?? 0, href: `/societies/${societyId}/complaints`, label: t("nav.complaints") },
+    { key: "members", count: counts?.members ?? 0, href: `/societies/${societyId}/members`, label: t("dashboard.pendingMembers") },
+    { key: "visitors", count: counts?.visitors ?? 0, href: `/societies/${societyId}/visitors`, label: t("dashboard.pendingApprovals") },
+    { key: "notices", count: counts?.notices ?? 0, href: `/societies/${societyId}/notices`, label: t("nav.notices") },
+    { key: "billing", count: counts?.billing ?? 0, href: `/societies/${societyId}/billing`, label: t("dashboard.billingAttention") },
+  ].filter((item) => item.count > 0);
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-base font-semibold tracking-tight">{t("dashboard.attention")}</h2>
+      {query.isLoading ? (
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+      ) : items.length === 0 ? (
+        <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+          {t("dashboard.nothingWaiting")}
+        </p>
+      ) : (
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {items.map((item) => (
+            <li key={item.key}>
+              <Link
+                href={item.href}
+                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm hover:bg-muted/60"
+              >
+                <span className="font-medium">{item.label}</span>
+                <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-semibold text-primary-foreground">
+                  {item.count > 99 ? "99+" : item.count}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

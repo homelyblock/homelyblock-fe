@@ -123,11 +123,11 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">{t("forms.buildingsTitle")}</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("forms.buildingsTitle")}</h2>
         {buildings.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("forms.noBuildings")}</p>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {buildings.map((building) => (
               <li
                 key={building.id}

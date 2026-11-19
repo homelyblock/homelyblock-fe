@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SignInFooter } from "@/features/auth/components/auth-form-shell";
 import { SignInScreen } from "@/features/auth/components/sign-in-screen";
 
 export const instant = false;
@@ -13,18 +13,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   return (
     <SignInScreen
       audience="member"
-      title="Sign in"
-      description="Society administrators and residents sign in here."
+      copy="signIn"
       next={params.next}
       error={params.error}
-      footer={
-        <p>
-          Need an account?{" "}
-          <Link href="/sign-up" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Get started
-          </Link>
-        </p>
-      }
+      footer={<SignInFooter />}
     />
   );
 }

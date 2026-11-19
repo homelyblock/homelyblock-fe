@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/layout/back-link";
 import { redirect } from "next/navigation";
 import {
   directoryAccessRedirect,
@@ -20,14 +20,7 @@ export default async function UnitOccupancyPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        <Link
-          href={`/societies/${societyId}/residents`}
-          className="font-medium text-foreground underline-offset-4 hover:underline"
-        >
-          ← Resident directory
-        </Link>
-      </p>
+      <BackLink href={`/societies/${societyId}/residents`} labelKey="nav.residents" />
       <UnitOccupancy societyId={societyId} unitId={unitId} />
     </div>
   );

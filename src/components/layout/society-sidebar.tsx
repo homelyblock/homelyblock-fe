@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   Building2,
   DoorOpen,
@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Megaphone,
   MessageSquareWarning,
+  PanelLeft,
   Receipt,
   UserRound,
   Users,
@@ -23,12 +24,30 @@ import { fetchAttention } from "@/features/dashboard/api";
 import type { AttentionCounts } from "@/features/dashboard/types";
 import { countForNav } from "@/features/shell/attention";
 import {
+  NAV_GROUPS,
   visibleSocietyNav,
   societyNavKey,
+  type NavGroup,
   type SocietyNavKey,
 } from "@/features/shell/nav-items";
+import { fetchSocieties } from "@/features/societies/api";
 import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
+
+const SIDEBAR_EVENT = "hb-sidebar-collapsed-change";
+
+function subscribeSidebar(onChange: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(SIDEBAR_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function sidebarCollapsed() {
+  return window.localStorage.getItem("hb-sidebar-collapsed") === "1";
+}
 
 const ICONS: Record<SocietyNavKey, typeof LayoutDashboard> = {
   overview: LayoutDashboard,
@@ -42,6 +61,13 @@ const ICONS: Record<SocietyNavKey, typeof LayoutDashboard> = {
   billing: Receipt,
   complaints: MessageSquareWarning,
   services: Wrench,
+};
+
+const GROUP_LABEL: Record<Exclude<NavGroup, "overview">, string> = {
+  community: "nav.groupCommunity",
+  communication: "nav.groupCommunication",
+  operations: "nav.groupOperations",
+  finance: "nav.groupFinance",
 };
 
 type SocietySidebarProps = {
@@ -66,60 +92,184 @@ export function SocietySidebar({
   const active = societyNavKey(pathname, societyId);
   const items = visibleSocietyNav(canManage, { includeHousehold });
   const counts = useAttentionCounts(societyId);
-  const activeLabel =
-    items.find((item) => item.key === active)?.label ?? t("common.sections");
-  const [menuPath, setMenuPath] = useState<string | null>(null);
-  const open = menuPath === pathname;
+  const [openPath, setOpenPath] = useState<string | null>(null);
+  const open = openPath === pathname;
+  const collapsed = useSyncExternalStore(subscribeSidebar, sidebarCollapsed, () => false);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpenPath(null);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  function toggleCollapsed() {
+    window.localStorage.setItem("hb-sidebar-collapsed", collapsed ? "0" : "1");
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
+  }
+
+  const nav = (
+    <NavLinks
+      items={items}
+      societyId={societyId}
+      active={active}
+      counts={counts}
+      collapsed={collapsed}
+      onNavigate={() => setOpenPath(null)}
+    />
+  );
 
   return (
-    <aside className="border-b border-sidebar-border bg-sidebar text-sidebar-foreground md:sticky md:top-14 md:flex md:h-[calc(100vh-3.5rem)] md:w-64 md:shrink-0 md:flex-col md:border-r md:border-b-0">
-      <div className="px-4 py-4">
-        <p className="text-xs font-medium tracking-wide text-sidebar-foreground/70 uppercase">
-          {t("common.society")}
-        </p>
-        <p className="mt-1 truncate text-sm font-semibold">{societyName}</p>
-      </div>
-      <div className="px-3 pb-3 md:hidden">
+    <>
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 md:hidden">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">{t("common.society")}</p>
+          <p className="truncate text-sm font-semibold text-foreground">{societyName}</p>
+        </div>
         <button
           type="button"
-          className="flex h-11 w-full items-center justify-between rounded-xl border border-sidebar-border bg-sidebar-accent px-3 text-sm font-medium"
+          className="inline-flex h-11 items-center rounded-lg border border-border bg-background px-3 text-sm font-medium"
           aria-expanded={open}
-          aria-controls="society-nav"
-          onClick={() => setMenuPath(open ? null : pathname)}
+          aria-controls="society-nav-drawer"
+          onClick={() => setOpenPath(pathname)}
         >
-          <span className="truncate">
-            {t(`nav.${active}`) === `nav.${active}` ? activeLabel : t(`nav.${active}`)}
-          </span>
-          <span className="text-xs font-normal text-sidebar-foreground/70">
-            {open ? t("common.close") : t("common.menu")}
-          </span>
+          {t("shell.openNav")}
         </button>
-        {open ? (
-          <nav id="society-nav" aria-label={t("common.sections")} className="pt-2">
-            <NavLinks
-              items={items}
-              societyId={societyId}
-              active={active}
-              counts={counts}
-            />
-          </nav>
-        ) : null}
       </div>
-      <nav aria-label={t("common.sections")} className="hidden flex-1 md:block">
-        <NavLinks
-          items={items}
-          societyId={societyId}
-          active={active}
-          counts={counts}
-        />
-      </nav>
-      <div className="hidden border-t border-sidebar-border p-3 md:block">
-        <p className="truncate px-2 text-xs text-sidebar-foreground/70">{userLabel}</p>
-        <div className="mt-2">
-          <SignOutButton appearance="sidebar" returnTo={signOutReturnTo} />
+      {open ? (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-[var(--theme-overlay)]"
+            aria-label={t("shell.closeNav")}
+            onClick={() => setOpenPath(null)}
+          />
+          <div
+            id="society-nav-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("common.sections")}
+            className="absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-sidebar-border px-4 py-3">
+              <p className="text-sm font-semibold">{t("common.sections")}</p>
+              <button
+                type="button"
+                className="inline-flex h-10 items-center rounded-lg px-2 text-sm font-medium"
+                onClick={() => setOpenPath(null)}
+              >
+                {t("common.close")}
+              </button>
+            </div>
+            <div className="border-b border-sidebar-border px-3 py-3">
+              <SocietySwitcher societyId={societyId} societyName={societyName} />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">{nav}</div>
+          </div>
         </div>
+      ) : null}
+      <aside
+        className={`sticky top-14 hidden h-[calc(100vh-3.5rem)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex ${
+          collapsed ? "md:w-[4.5rem]" : "md:w-60"
+        }`}
+      >
+        <div className={`border-b border-sidebar-border ${collapsed ? "px-2 py-3" : "px-3 py-3"}`}>
+          {collapsed ? (
+            <button
+              type="button"
+              title={t("shell.expand")}
+              aria-label={t("shell.expand")}
+              className="flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold hover:bg-sidebar-accent"
+              onClick={toggleCollapsed}
+            >
+              HB
+            </button>
+          ) : (
+            <SocietySwitcher societyId={societyId} societyName={societyName} />
+          )}
+        </div>
+        <nav aria-label={t("common.sections")} className="min-h-0 flex-1 overflow-y-auto">
+          {nav}
+        </nav>
+        <div className="border-t border-sidebar-border p-2">
+          <button
+            type="button"
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg px-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={toggleCollapsed}
+            aria-pressed={collapsed}
+          >
+            <PanelLeft aria-hidden className="size-4" />
+            {collapsed ? <span className="sr-only">{t("shell.expand")}</span> : <span>{t("shell.collapse")}</span>}
+          </button>
+          {collapsed ? null : (
+            <>
+              <p className="truncate px-2 pt-2 text-xs text-muted-foreground">{userLabel}</p>
+              <div className="mt-2">
+                <SignOutButton appearance="sidebar" returnTo={signOutReturnTo} />
+              </div>
+            </>
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function SocietySwitcher({
+  societyId,
+  societyName,
+}: {
+  societyId: string;
+  societyName: string;
+}) {
+  const { t } = useI18n();
+  const router = useRouter();
+  const query = useQuery({
+    queryKey: ["societies", "switcher"],
+    queryFn: async () => {
+      const token = await getBrowserAccessToken();
+      if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+      return fetchSocieties(token, 1, 50);
+    },
+  });
+
+  const items = query.data?.items ?? [];
+  const known = items.some((item) => item.id === societyId);
+  if (!query.data || items.length < 2) {
+    return (
+      <div className="min-w-0 px-1">
+        <p className="text-xs font-medium text-muted-foreground">{t("common.society")}</p>
+        <p className="truncate text-sm font-semibold">{societyName}</p>
       </div>
-    </aside>
+    );
+  }
+
+  return (
+    <label className="block min-w-0">
+      <span className="px-1 text-xs font-medium text-muted-foreground">{t("shell.switchSociety")}</span>
+      <select
+        className="mt-1 h-10 w-full truncate rounded-lg border border-sidebar-border bg-card px-2 text-sm font-medium text-foreground"
+        value={societyId}
+        aria-label={t("shell.switchSociety")}
+        onChange={(event) => {
+          router.push(`/societies/${event.target.value}`);
+        }}
+      >
+        {known ? null : <option value={societyId}>{societyName}</option>}
+        {items.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </select>
+      {query.data.total > items.length ? (
+        <Link href="/societies" className="mt-1 block px-1 text-xs font-medium text-primary hover:underline">
+          {t("shell.allSocieties")}
+        </Link>
+      ) : null}
+    </label>
   );
 }
 
@@ -152,45 +302,77 @@ function NavLinks({
   societyId,
   active,
   counts,
+  collapsed,
+  onNavigate,
 }: {
   items: ReturnType<typeof visibleSocietyNav>;
   societyId: string;
   active: SocietyNavKey;
   counts: AttentionCounts | undefined;
+  collapsed: boolean;
+  onNavigate: () => void;
 }) {
   const { t } = useI18n();
 
   return (
-    <ul className="flex flex-col gap-1 px-2 py-2">
-      {items.map((item) => {
-        const Icon = ICONS[item.key];
-        const isActive = item.key === active;
-        const count = countForNav(item.key, counts);
-        const translated = t(`nav.${item.key}`);
-        const label = translated === `nav.${item.key}` ? item.label : translated;
+    <div className="flex flex-col gap-4 px-2 py-3">
+      {NAV_GROUPS.map((group) => {
+        const groupItems = items.filter((item) => item.group === group);
+        if (groupItems.length === 0) return null;
+        const labelKey = group === "overview" ? null : GROUP_LABEL[group];
         return (
-          <li key={item.key}>
-            <Link
-              href={item.href(societyId)}
-              aria-current={isActive ? "page" : undefined}
-              aria-label={count > 0 ? `${label}, ${t("nav.pending", { count })}` : label}
-              className={
-                isActive
-                  ? "flex min-h-11 items-center gap-2.5 rounded-xl bg-sidebar-accent px-3 text-sm font-medium text-sidebar-accent-foreground shadow-[inset_3px_0_0_var(--theme-accent)]"
-                  : "flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-sm font-medium text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }
-            >
-              <Icon aria-hidden className="size-4 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">{label}</span>
-              {count > 0 ? (
-                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
-                  {count > 99 ? "99+" : count}
-                </span>
-              ) : null}
-            </Link>
-          </li>
+          <div key={group}>
+            {labelKey && !collapsed ? (
+              <p className="mb-1 flex items-center gap-2 px-3 text-[11px] font-semibold tracking-[0.14em] text-[var(--sidebar-heading)] uppercase">
+                <span aria-hidden className="h-3 w-0.5 rounded-full bg-[var(--sidebar-heading)]" />
+                {t(labelKey)}
+              </p>
+            ) : null}
+            <ul className="flex flex-col gap-0.5">
+              {groupItems.map((item) => {
+                const Icon = ICONS[item.key];
+                const isActive = item.key === active;
+                const count = countForNav(item.key, counts);
+                const translated = t(`nav.${item.key}`);
+                const label = translated === `nav.${item.key}` ? item.label : translated;
+                return (
+                  <li key={item.key}>
+                    <Link
+                      href={item.href(societyId)}
+                      title={collapsed ? label : undefined}
+                      aria-current={isActive ? "page" : undefined}
+                      aria-label={count > 0 ? `${label}, ${t("nav.pending", { count })}` : label}
+                      onClick={onNavigate}
+                      className={
+                        isActive
+                          ? "relative flex min-h-10 items-center gap-2.5 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground shadow-[inset_2px_0_0_var(--theme-primary)]"
+                          : "relative flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }
+                    >
+                      <Icon aria-hidden className="size-4 shrink-0" />
+                      {collapsed ? (
+                        count > 0 ? (
+                          <span className="sr-only">{count}</span>
+                        ) : null
+                      ) : (
+                        <span className="min-w-0 flex-1 truncate">{label}</span>
+                      )}
+                      {!collapsed && count > 0 ? (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
+                          {count > 99 ? "99+" : count}
+                        </span>
+                      ) : null}
+                      {collapsed && count > 0 ? (
+                        <span className="absolute ml-6 size-1.5 rounded-full bg-primary" aria-hidden />
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }

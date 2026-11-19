@@ -33,7 +33,7 @@ export function QuickActions({
         <Link
           key={item.key}
           href={item.href(societyId)}
-          className="rounded-xl border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground shadow-sm hover:-translate-y-px hover:border-teal/40"
+          className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:border-primary/30 hover:bg-accent"
         >
           {t(`actions.${item.key}`) === `actions.${item.key}`
             ? item.label

@@ -44,8 +44,8 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
                 key={option.value}
                 className={`flex cursor-pointer flex-col gap-3 rounded-xl border p-4 transition ${
                   selected
-                    ? "border-teal bg-teal/10 ring-1 ring-teal"
-                    : "border-border bg-background hover:border-teal/50"
+                    ? "border-primary bg-primary/10 ring-1 ring-primary"
+                    : "border-border bg-background hover:border-primary/40"
                 }`}
               >
                 <input
@@ -58,7 +58,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
                   onChange={() => setRole(option.value)}
                 />
                 <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <Icon className="size-4 text-teal" aria-hidden />
+                  <Icon className="size-4 text-primary" aria-hidden />
                   {option.title}
                 </span>
                 <span className="text-sm leading-6 text-muted-foreground">

@@ -7,6 +7,7 @@ import { MobileNav } from "@/features/marketing/mobile-nav";
 import { OpenCookiePreferences } from "@/features/marketing/cookie-consent";
 import { readOperatorIdentity } from "@/features/marketing/operator";
 import { footerLegalLinks, footerProductLinks, productNav } from "@/features/marketing/site-nav";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { useI18n } from "@/i18n/provider";
 
@@ -53,6 +54,7 @@ export function SiteHeader({ signedIn }: SiteHeaderProps) {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <ThemeSwitcher className="hidden sm:inline-flex" />
           <LanguageSwitcher />
           {signedIn ? (
             <Link
@@ -65,13 +67,13 @@ export function SiteHeader({ signedIn }: SiteHeaderProps) {
             <>
               <Link
                 href="/sign-in"
-                className="hidden h-10 items-center rounded-xl px-3 text-sm font-medium text-foreground hover:bg-muted sm:inline-flex"
+                className="hidden h-10 items-center rounded-lg px-3 text-sm font-medium text-foreground hover:bg-muted lg:inline-flex"
               >
                 {t("marketing.login")}
               </Link>
               <Link
                 href="/sign-up"
-                className="hidden h-10 items-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground sm:inline-flex"
+                className="hidden h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground lg:inline-flex"
               >
                 {t("marketing.getStarted")}
               </Link>
@@ -88,33 +90,33 @@ export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
   const { t } = useI18n();
   const operator = readOperatorIdentity();
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-forest text-forest-foreground">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr]">
         <div className="max-w-sm space-y-3">
           <Logo href="/" tone="inverse" />
-          <p className="text-sm leading-6 text-primary-foreground/80">
+          <p className="text-sm leading-6 text-forest-foreground/80">
             {t("marketing.blurb")}
           </p>
-          <p className="text-sm leading-6 text-primary-foreground/80">
+          <p className="text-sm leading-6 text-forest-foreground/80">
             {operator.legalName
               ? `${operator.legalName}${operator.address ? `, ${operator.address}` : ""}.`
               : t("marketing.operatorMissing")}
           </p>
-          <p className="text-sm text-primary-foreground/70">{t("marketing.copyright")}</p>
+          <p className="text-sm text-forest-foreground/70">{t("marketing.copyright")}</p>
         </div>
         <div className="space-y-2 text-sm">
           <p className="font-medium">{t("marketing.product")}</p>
           {footerProductLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="block text-primary-foreground/80 hover:text-primary-foreground">
+            <Link key={link.href} href={link.href} className="block text-forest-foreground/80 hover:text-forest-foreground">
               {marketingLabel(link.href, link.label, t)}
             </Link>
           ))}
           {signedIn ? (
-            <Link href="/societies" className="block text-primary-foreground/80 hover:text-primary-foreground">
+            <Link href="/societies" className="block text-forest-foreground/80 hover:text-forest-foreground">
               {t("marketing.openApp")}
             </Link>
           ) : (
-            <Link href="/sign-in" className="block text-primary-foreground/80 hover:text-primary-foreground">
+            <Link href="/sign-in" className="block text-forest-foreground/80 hover:text-forest-foreground">
               {t("marketing.login")}
             </Link>
           )}
@@ -122,11 +124,11 @@ export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
         <div className="space-y-2 text-sm">
           <p className="font-medium">{t("marketing.legal")}</p>
           {footerLegalLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="block text-primary-foreground/80 hover:text-primary-foreground">
+            <Link key={link.href} href={link.href} className="block text-forest-foreground/80 hover:text-forest-foreground">
               {marketingLabel(link.href, link.label, t)}
             </Link>
           ))}
-          <OpenCookiePreferences className="block text-left text-primary-foreground/80 hover:text-primary-foreground">
+          <OpenCookiePreferences className="block text-left text-forest-foreground/80 hover:text-forest-foreground">
             {t("marketing.cookiePreferences")}
           </OpenCookiePreferences>
         </div>

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingSkeleton } from "@/components/layout/status-views";
 import { ApiError } from "@/services/api-client";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
-import { Metric } from "@/features/dashboard/components/metric";
 import { fetchSocieties } from "../api";
 
 const PAGE_SIZE = 20;
@@ -56,32 +55,26 @@ export function SocietyList({ isPlatformOwner }: { isPlatformOwner: boolean }) {
   const pageCount = Math.max(1, Math.ceil(data.total / data.limit));
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Metric label="Societies" value={data.total} />
-        <Metric label="Active" value={data.activeCount} />
-        <Metric label="Archived" value={data.archivedCount} />
-      </div>
-      <ul className="space-y-3">
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        {data.total} · {data.activeCount} active · {data.archivedCount} archived
+      </p>
+      <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {data.items.map((society) => (
           <li key={society.id}>
             <Link
               href={`/societies/${society.id}`}
-              className="block rounded-lg border border-border bg-card px-5 py-4 transition hover:border-teal/40 hover:bg-muted/40"
+              className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-muted/50"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-semibold text-foreground">{society.name}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {[society.city, society.state].filter(Boolean).join(", ") || "Location not set"}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <StatusBadge value={society.status} />
-                  {society.membershipRole ? (
-                    <StatusBadge value={society.membershipRole} />
-                  ) : null}
-                </div>
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-semibold text-foreground">{society.name}</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {[society.city, society.state].filter(Boolean).join(", ") || "Location not set"}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {society.membershipRole ? <StatusBadge value={society.membershipRole} /> : null}
+                <StatusBadge value={society.status} />
               </div>
             </Link>
           </li>

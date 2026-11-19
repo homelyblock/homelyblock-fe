@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/layout/back-link";
 import { redirect } from "next/navigation";
 import { redirectForLoadFailure } from "@/features/shell/navigation";
 import { getSupabasePublicConfig } from "@/config/supabase-public-env";
@@ -22,14 +22,7 @@ export default async function EditProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-      <p className="text-sm text-muted-foreground">
-          <Link
-            href="/profile"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            ← Back to profile
-          </Link>
-        </p>
+      <BackLink href="/profile" labelKey="nav.profile" />
         <div className="mt-6 space-y-4">
           <div>
             <h1 className="text-xl font-semibold text-foreground">

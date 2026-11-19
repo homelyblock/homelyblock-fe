@@ -305,11 +305,11 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     <div className="space-y-6">
       <AuthStatus status={status} message={message} />
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Members</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">Members</h2>
         {members.length === 0 ? (
           <p className="text-sm text-muted-foreground">No memberships yet.</p>
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {members.map((member) => (
               <li
                 key={member.id}

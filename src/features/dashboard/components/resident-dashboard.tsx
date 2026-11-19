@@ -73,10 +73,10 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{unitLabel}</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
             {data.society.name}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{unitLabel}</p>
         </div>
         <StatusBadge value={data.membership.status} />
       </div>
@@ -87,12 +87,15 @@ export function ResidentDashboardPanel({ societyId }: ResidentDashboardProps) {
         catalog={RESIDENT_ACTION_LINKS}
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.outstandingBalance)} />
-        <Metric label={t("dashboard.unreadNotices")} value={data.notices.unreadCount} />
-        <Metric label={t("dashboard.openComplaints")} value={data.complaints.openOrInProgressCount} />
-        <Metric label={t("dashboard.pendingVisitors")} value={data.visitors.pendingApprovalCount} />
-      </div>
+      <section className="space-y-3">
+        <h2 className="text-base font-semibold tracking-tight">{t("dashboard.attention")}</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric label={t("dashboard.outstanding")} value={formatMoney(data.maintenance.outstandingBalance)} />
+          <Metric label={t("dashboard.unreadNotices")} value={data.notices.unreadCount} />
+          <Metric label={t("dashboard.openComplaints")} value={data.complaints.openOrInProgressCount} />
+          <Metric label={t("dashboard.pendingVisitors")} value={data.visitors.pendingApprovalCount} />
+        </div>
+      </section>
 
       <DashboardSection
         title={t("nav.household")}

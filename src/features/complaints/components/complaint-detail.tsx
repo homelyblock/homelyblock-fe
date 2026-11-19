@@ -107,7 +107,7 @@ export function ComplaintDetailView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
             {complaint.title}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">

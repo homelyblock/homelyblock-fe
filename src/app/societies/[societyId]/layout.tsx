@@ -37,7 +37,7 @@ export default async function SocietyLayout({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col md:min-h-[calc(100vh-3.5rem)] md:flex-row">
+    <div className="flex w-full flex-col md:min-h-[calc(100vh-3.5rem)] md:flex-row">
       <SocietySidebar
         societyId={societyId}
         societyName={societyName}
@@ -48,7 +48,9 @@ export default async function SocietyLayout({
           me.platformRole === "PLATFORM_OWNER" ? "/admin/sign-in" : "/sign-in"
         }
       />
-      <div className="motion-rise min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+      <div className="motion-rise min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10">
+        <div className="w-full">{children}</div>
+      </div>
     </div>
   );
 }

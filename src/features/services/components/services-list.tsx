@@ -57,7 +57,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Services</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">Services</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Society-managed directory of local service providers. Not a
             marketplace.
@@ -66,7 +66,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
         {canManage ? (
           <Link
             href={`/societies/${societyId}/services/new`}
-            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90"
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
           >
             Add provider
           </Link>

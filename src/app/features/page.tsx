@@ -24,16 +24,22 @@ export const instant = false;
 
 export default function FeaturesPage() {
   return (
-    <PublicPage title="Features" description="Only the workflows that exist in the product are listed here.">
-      <ul className="space-y-4">
+    <PublicPage
+      layout="wide"
+      title="Features"
+      description="Only the workflows that exist in the product are listed here."
+    >
+      <ul className="grid gap-4 sm:grid-cols-2">
         {features.map(([title, description]) => (
-          <li key={title}>
-            <h2>{title}</h2>
-            <p>{description}</p>
+          <li key={title} className="rounded-xl border border-border bg-card p-5">
+            <h2 className="text-base font-semibold tracking-tight">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
           </li>
         ))}
       </ul>
-      <p>HomelyBlock does not include gate hardware, WhatsApp or SMS alerts, online collections, or a public pricing plan.</p>
+      <p className="mt-6 max-w-3xl text-sm leading-6 text-muted-foreground">
+        HomelyBlock does not include gate hardware, WhatsApp or SMS alerts, online collections, or a public pricing plan.
+      </p>
     </PublicPage>
   );
 }

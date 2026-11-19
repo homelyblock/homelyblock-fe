@@ -47,7 +47,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Notices</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">Notices</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {canManage
               ? "Draft, publish, and review society announcements."
@@ -83,7 +83,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
               </div>
               <Link
                 href={`/societies/${societyId}/notices/new`}
-                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary/90"
+                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
               >
                 Create notice
               </Link>
@@ -114,7 +114,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
       ) : null}
 
       {notices.length > 0 ? (
-        <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {notices.map((notice) => (
             <li key={notice.id}>
               <Link

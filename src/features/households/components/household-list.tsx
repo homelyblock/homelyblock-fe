@@ -25,7 +25,7 @@ export function HouseholdList({ societyId }: HouseholdListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">My Household</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">My Household</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Family and other occupants for your unit. Household members do not
             get login accounts.
@@ -33,7 +33,7 @@ export function HouseholdList({ societyId }: HouseholdListProps) {
         </div>
         <Link
           href={`/societies/${societyId}/household/new`}
-          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90"
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
         >
           Add member
         </Link>

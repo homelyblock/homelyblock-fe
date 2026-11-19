@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/layout/back-link";
 import { redirect } from "next/navigation";
 import { redirectForLoadFailure } from "@/features/shell/navigation";
 import { CreateSocietyForm } from "@/features/societies/components/create-society-form";
@@ -31,6 +32,7 @@ export default async function CreateSocietyPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <BackLink href="/societies" labelKey="nav.societies" />
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
         Create society
       </h1>

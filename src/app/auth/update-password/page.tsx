@@ -9,10 +9,7 @@ export default function UpdatePasswordPage() {
   const configured = getSupabasePublicConfig() !== null;
 
   return (
-    <AuthFormShell
-      title="Choose a new password"
-      description="Use at least 8 characters. After saving, sign in with the new password."
-    >
+    <AuthFormShell copy="update">
       {!configured ? (
         <Alert tone="warning">Password update is not configured.</Alert>
       ) : (

@@ -10,8 +10,7 @@ import { SignInForm } from "./sign-in-form";
 
 type SignInScreenProps = {
   audience: AuthEntry;
-  title: string;
-  description: string;
+  copy: "signIn" | "admin";
   next?: string;
   error?: string;
   footer?: ReactNode;
@@ -19,8 +18,7 @@ type SignInScreenProps = {
 
 export async function SignInScreen({
   audience,
-  title,
-  description,
+  copy,
   next,
   error,
   footer,
@@ -35,7 +33,7 @@ export async function SignInScreen({
   }
 
   return (
-    <AuthFormShell title={title} description={description} footer={footer}>
+    <AuthFormShell copy={copy} footer={footer}>
       {error === "auth_callback" ? (
         <Alert>
           That confirmation link could not be completed. Request a new email or sign in with your password.

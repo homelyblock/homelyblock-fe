@@ -157,7 +157,7 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
       className="space-y-4 rounded-lg border border-border bg-card px-5 py-5"
     >
       <div>
-        <h2 className="text-lg font-semibold text-foreground">
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">
           {notice ? "Edit draft" : "Create notice"}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">

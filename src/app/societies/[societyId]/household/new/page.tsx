@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/layout/back-link";
 import { redirect } from "next/navigation";
 import { HouseholdMemberForm } from "@/features/households/components/household-member-form";
 import {
@@ -21,17 +21,10 @@ export default async function NewHouseholdMemberPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        <Link
-          href={`/societies/${societyId}/household`}
-          className="font-medium text-foreground underline-offset-4 hover:underline"
-        >
-          ← Back to household
-        </Link>
-      </p>
+      <BackLink href={`/societies/${societyId}/household`} labelKey="nav.household" />
       <div className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
             Add household member
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">

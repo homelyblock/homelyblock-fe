@@ -9,7 +9,7 @@ const tones: Record<StatusTone, string> = {
   success: "bg-success/10 text-success",
   warning: "bg-warning/10 text-warning",
   danger: "bg-destructive/10 text-destructive",
-  info: "bg-teal/10 text-teal",
+  info: "bg-info/10 text-info",
 };
 
 type StatusBadgeProps = {
