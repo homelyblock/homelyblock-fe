@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const supabasePublicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  publicKey: z.string().min(1),
 });
 
 export type SupabasePublicConfig = {
@@ -10,22 +10,35 @@ export type SupabasePublicConfig = {
   anonKey: string;
 };
 
+function readSupabasePublicKey(): string | undefined {
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+  if (!key) return undefined;
+  if (key.startsWith("sb_secret_")) {
+    throw new Error(
+      "The Supabase secret key cannot be used in the browser. Set NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to the publishable key.",
+    );
+  }
+  return key;
+}
+
 export function getSupabasePublicConfig(): SupabasePublicConfig | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const publicKey = readSupabasePublicKey();
 
-  if (!url && !anonKey) {
+  if (!url && !publicKey) {
     return null;
   }
 
   const parsed = supabasePublicEnvSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: url,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: anonKey,
+    publicKey,
   });
 
   if (!parsed.success) {
     throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must both be set to valid values, or both left unset",
+      "Set NEXT_PUBLIC_SUPABASE_URL and either NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, or leave all of them unset",
     );
   }
 
@@ -36,7 +49,7 @@ export function getSupabasePublicConfig(): SupabasePublicConfig | null {
 
   return {
     url: parsedUrl.origin,
-    anonKey: parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    anonKey: parsed.data.publicKey,
   };
 }
 
@@ -44,7 +57,7 @@ export function requireSupabasePublicConfig(): SupabasePublicConfig {
   const config = getSupabasePublicConfig();
   if (!config) {
     throw new Error(
-      "Supabase Auth is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Supabase Auth is not configured. Set NEXT_PUBLIC_SUPABASE_URL and either NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
     );
   }
   return config;
