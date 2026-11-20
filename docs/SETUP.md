@@ -1,77 +1,106 @@
-# Frontend Setup
+# HomelyBlock — Project setup
 
-Verified on 2026-10-29 with Node.js v24.21.0 and npm 11.19.0. Next.js 16.4.3 requires Node.js `>=20.9.0`. This repository uses npm (`package-lock.json`, lockfileVersion 3).
+Local development and the production migration command. Do not put real secrets in this file.
 
-## Install
+## Prerequisites
 
-From `livingspace-fe`:
+- Node.js `>=20.9.0` and npm
+- Docker Desktop, for local PostgreSQL
+- A Supabase project for sign-in
+
+## Local database
+
+From `homelyblock-be`:
 
 ```bash
 npm ci
+cp .env.example .env
+npm run db:up
+npm run prisma:generate
+npm run prisma:migrate:deploy
 ```
 
-Use `npm install` only when intentionally updating dependencies. `node_modules` was already present during verification, so install was not re-run.
+Docker Compose publishes PostgreSQL on `localhost:5434`. The development database is `livingspace_dev`. The integration-test database is `livingspace_test`. Create the test database once with `npm run db:create-test` if it is missing.
 
-## Environment
+`npm run prisma:migrate` is `prisma migrate dev`. Use it only when you are creating a new migration on your own development database. Use `npm run prisma:migrate:deploy` to apply migrations that are already in the repository.
+
+## Local API and application
+
+Backend `.env` needs at least:
 
 ```bash
+NODE_ENV=development
+PORT=4000
+API_PREFIX=api/v1
+CORS_ORIGINS=http://localhost:3000
+TRUSTED_PROXY_HOPS=0
+DATABASE_URL=postgresql://postgres:postgres@localhost:5434/livingspace_dev
+DATABASE_URL_TEST=postgresql://postgres:postgres@localhost:5434/livingspace_test
+```
+
+Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` together, or leave both unset. Protected routes return 401 until they are set. `SIGNUP_INTENT_SECRET` must match the same value on the frontend server. Do not put the Supabase service-role key in the frontend.
+
+From `homelyblock-fe`:
+
+```bash
+npm ci
 cp .env.example .env.local
 ```
 
-`.env.example` contains:
+Set `NEXT_PUBLIC_API_URL=http://localhost:4000`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`, and the Supabase URL plus one public key (`NEXT_PUBLIC_SUPABASE_ANON_KEY` or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Never put a database URL, a service-role key, or a secret key in a `NEXT_PUBLIC_` variable.
+
+In the Supabase dashboard, set the site URL and add these redirect URLs:
+
+- `http://localhost:3000/auth/callback`
+- `http://localhost:3000/auth/update-password`
+
+Add the same two paths for the deployed site origin before testing password recovery there.
+
+Start both from the workspace root with `./dev.sh`, or start them separately:
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:4000
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+npm --prefix homelyblock-be run start:dev
+npm --prefix homelyblock-fe run dev
 ```
 
-`NEXT_PUBLIC_API_URL` is the NestJS origin, without `/api/v1`. If unset, `src/config/public-env.ts` defaults to `http://localhost:4000`.
+- Application: http://localhost:3000
+- API liveness: http://localhost:4000/api/v1/health
+- API readiness: http://localhost:4000/api/v1/health/ready
+- Swagger: http://localhost:4000/api/docs while `NODE_ENV` is not `production`
 
-Supabase Auth public settings must both be set (URL + anon/publishable key) or both left unset. Auth pages show a configuration message when they are missing. Never put the Supabase service-role key or database credentials in `NEXT_PUBLIC_` variables. `.gitignore` ignores `.env*` and keeps `.env.example` trackable.
+## First platform owner
 
-### Supabase dashboard (manual)
+Public sign-up cannot create a platform owner. After the person has signed in once, so a `user_profiles` row exists, run this against the development database only:
 
-1. Create a Supabase project and copy the Project URL + anon/publishable key into `.env.local`.
-2. Authentication → Providers: enable Email.
-3. Authentication → URL configuration: set Site URL to `http://localhost:3000` (or your deployed origin) and add redirect URLs:
-   - `http://localhost:3000/auth/callback`
-   - `http://localhost:3000/auth/update-password`
-4. Prefer asymmetric JWT signing keys (JWKS). The NestJS API verifies access tokens independently; a browser session alone does not authorize API calls.
+```sql
+UPDATE user_profiles
+SET platform_role = 'PLATFORM_OWNER'
+WHERE id = '<supabase-auth-user-uuid>';
+```
 
-The dev and production scripts bind the frontend to port **3000**:
+Confirm with `GET /api/v1/me`. The platform owner signs in at `/admin/sign-in`. Residents and society admins use `/sign-in` and `/sign-up`.
 
-- `npm run dev` → `next dev --port 3000`
-- `npm run start` → `next start --port 3000`
+## Optional email
 
-## Run
+Contact email is sent only when `SUPPORT_EMAIL`, `MAIL_FROM`, and `RESEND_API_KEY` are all set on the API. Otherwise the message is stored and the form says that no email was sent. Invitations are in-app. Password recovery is sent by Supabase, not by HomelyBlock.
+
+Leave `COMPLAINT_ATTACHMENT_STORAGE` unset unless complaint images are explicitly enabled. Uploads return 503 while storage is disabled.
+
+Leave `TRUSTED_PROXY_HOPS` at `0` unless every request reaches the API through a known reverse proxy and clients cannot open the API port directly.
+
+## Production database
+
+Take a backup before migrating a database that already has society data.
+
+From `homelyblock-be`, with `DATABASE_URL` set to that database’s direct connection string (not the transaction pooler):
 
 ```bash
-npm run dev
+npm run prisma:migrate:status
+npm run prisma:migrate:deploy
 ```
 
-Local URL: [http://localhost:3000](http://localhost:3000)
+This applies only migrations that are not yet recorded. The current set includes `20261119143000_integrity_keys` and `20261120103000_society_scope_and_invitations`. If existing rows cross societies, emails differ only by case, or two active household members share a name, the migration stops and does not rewrite the data.
 
-The backend API is a separate process at [http://localhost:4000](http://localhost:4000).
+Do not run `scripts/fresh-migrate-check.mjs` against a shared or production database. That script creates a local database and then drops it. Do not run `prisma migrate dev` or `prisma migrate reset` against production.
 
-## Checks
-
-There is no `typecheck` script. TypeScript is checked with `tsc` and again during `next build`. `npm test` runs the Redux store check with Node's built-in test runner.
-
-| Command | Result on 2026-10-29 |
-| --- | --- |
-| `npm run lint` | Passed (eslint, no findings) |
-| `npx tsc --noEmit` | Passed (TypeScript 5.9.3) |
-| `npm test` | Passed (3 tests: store initializes, unknown actions do not change it, a reducer updates state) |
-| `npm run build` | Re-run after auth changes |
-| `npm run dev` | Ready at http://localhost:3000 |
-
-Auth routes: `/sign-in`, `/sign-up`, `/password-reset`, `/auth/callback`, `/auth/update-password`. Session refresh runs in `src/proxy.ts`.
-
-## Troubleshooting
-
-- Port 3000 in use: stop the other process. The scripts always pass `--port 3000`.
-- API connection failures: confirm the backend is running at the `NEXT_PUBLIC_API_URL` origin, by default http://localhost:4000. Protected API calls must send `Authorization: Bearer <access_token>` from the Supabase session.
-- Auth pages say Supabase is not configured: set both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, then restart `next dev`.
-- Build failures: use the compiler output. Do not change dependency versions to silence an error without checking the lockfile.
+After the migration, confirm both health URLs on the deployed API, then follow `TESTING.md`.

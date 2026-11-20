@@ -1,38 +1,19 @@
-# LivingSpace Frontend
+# HomelyBlock
 
-Next.js + TypeScript frontend for LivingSpace.
+HomelyBlock is a web application for residential society operations: buildings and flats, memberships, notices, visitors, complaints, maintenance bills, and a service directory. It is not a payment gateway, a gate-hardware system, or a messaging product.
 
-## Status
-Read the workspace-level `PRD.md` for intended scope. Requirements do not imply that a feature is already implemented.
+The application is two repositories:
 
-## Setup
-From this repository, with Node.js `>=20.9.0` and npm:
+- `homelyblock-fe` — Next.js application on port 3000
+- `homelyblock-be` — NestJS API on port 4000, PostgreSQL through Prisma
 
-```bash
-npm ci
-npm run dev
-```
+## Read these
 
-The app listens at http://localhost:3000. Copy `.env.example` to `.env.local` to override the API origin. The default is `http://localhost:4000`. Details are in `docs/SETUP.md` and `docs/ARCHITECTURE.md`.
+| Document | Who it is for |
+| --- | --- |
+| [SETUP.md](SETUP.md) | Anyone installing the project locally, or applying database migrations to an existing environment |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Engineers changing the application |
+| [TESTING.md](TESTING.md) | The testing team, including checks on an already deployed environment |
+| [DESIGN.md](DESIGN.md) | Anyone changing screens, color, or layout |
 
-```bash
-npm run lint
-npx tsc --noEmit
-npm test
-npm run build
-```
-
-`npm test` checks the Redux store with Node's built-in test runner.
-
-## Environment
-`.env.example` documents `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Never put database credentials or the Supabase service-role key in a `NEXT_PUBLIC_` variable.
-
-## Conventions
-- Follow the workspace `DESIGN.md`.
-- Use a centralized typed API client.
-- Handle API/session failures consistently.
-- Keep frontend authorization checks as UX only; the backend must enforce permissions.
-- Test mobile layouts and accessibility for core workflows.
-
-## Shared documentation
-The canonical product, design, architecture, database, and API documents live in the parent workspace. Open the whole `LivingSpace` directory in Cursor when working across repositories.
+These files are the copies committed with this repository. The Prisma schema and the development Swagger page are the live API and database contracts. Screen rules are in `DESIGN.md`.

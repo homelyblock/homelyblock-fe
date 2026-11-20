@@ -1,16 +1,11 @@
-# LivingSpace Frontend — Agent Rules
+# HomelyBlock frontend agent rules
 
-Read the workspace-level `AGENTS.md`, `PRD.md`, `DESIGN.md`, `ARCHITECTURE.md`, and `API.md` when available before changing behavior. The workspace-level files are canonical; this repository's rules add frontend-specific constraints.
+Read `docs/DEVELOPMENT.md` and `docs/DESIGN.md` before changing screens.
 
-- Inspect the current Next.js structure, package scripts, and components before editing.
-- Follow `DESIGN.md`; do not invent a parallel design system.
-- Use TypeScript and the project's existing router, styling, and component conventions.
-- Centralize API requests and normalize errors.
-- Backend authorization is authoritative; UI role checks are only for presentation.
-- Never expose private keys, database credentials, or service-role keys in client code.
-- Handle loading, empty, success, validation, error, and forbidden states.
-- Build responsive, accessible screens with labels and visible focus.
-- Reuse components where appropriate; avoid premature abstractions and unused dependencies.
-- Do not add product features not approved by `PRD.md`.
-- Update shared docs/contracts when a frontend change reveals a required product/API change; do not silently change the contract.
-- Run the actual lint, type-check, tests, and build scripts available in `package.json`; report anything not run.
+- Inspect the current page and feature folder before editing.
+- Follow `docs/DESIGN.md`. Do not add colors or a second design system.
+- Keep user-facing copy in the English, Hindi, and Marathi catalogs together.
+- Call the API through the existing client. The API enforces authorization. The interface only hides actions.
+- Never put a database URL, service-role key, or secret key in a `NEXT_PUBLIC_` variable.
+- Cover loading, empty, error, and forbidden states.
+- Run the frontend checks in `docs/DEVELOPMENT.md`.

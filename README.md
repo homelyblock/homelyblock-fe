@@ -1,8 +1,6 @@
-# LivingSpace frontend
+# HomelyBlock
 
-Next.js 16 App Router application for LivingSpace. The product, design, and API contracts live in the parent `Documents/` folder.
-
-## Setup
+Next.js 16 application. Setup, engineering rules, the testing script, and the design system are in `docs/`.
 
 Node.js `>=20.9.0` and npm.
 
@@ -12,9 +10,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The app listens at http://localhost:3000 and calls the API from `NEXT_PUBLIC_API_URL` (http://localhost:4000 in local development).
-
-## Checks
+The application listens at http://localhost:3000 and calls `NEXT_PUBLIC_API_URL` (http://localhost:4000 locally).
 
 ```bash
 npm run lint
@@ -23,8 +19,4 @@ npm test
 npm run build
 ```
 
-`npm test` runs the Node test runner against schema, navigation, and formatting checks. It does not drive a browser.
-
-## Environment
-
-Copy names from `.env.example`. Never put the Supabase service-role key or a database URL in a `NEXT_PUBLIC_` variable.
+`npm test` does not drive a browser. Never put a database URL or a Supabase service-role key in a `NEXT_PUBLIC_` variable.
