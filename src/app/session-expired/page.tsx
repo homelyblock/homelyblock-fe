@@ -1,6 +1,12 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { buttonVariants } from "@/components/ui/button";
 import { StatusPage } from "@/components/layout/status-views";
+import {
+  AUTH_ENTRY_COOKIE,
+  authEntryFromCookie,
+  signInPathForEntry,
+} from "@/features/auth/account-routing";
 import { safeAuthRedirectPath } from "@/features/auth/safe-redirect";
 
 export const instant = false;
@@ -14,6 +20,10 @@ export default async function SessionExpiredPage({
 }: SessionExpiredPageProps) {
   const params = await searchParams;
   const next = safeAuthRedirectPath(params.next, "/societies");
+  const jar = await cookies();
+  const signInPath = signInPathForEntry(
+    authEntryFromCookie(jar.get(AUTH_ENTRY_COOKIE)?.value),
+  );
 
   return (
     <StatusPage
@@ -22,7 +32,7 @@ export default async function SessionExpiredPage({
       description="Sign in again to continue. You will return to the page you were using when your session ended."
     >
       <Link
-        href={`/sign-in?next=${encodeURIComponent(next)}`}
+        href={`${signInPath}?next=${encodeURIComponent(next)}`}
         className={buttonVariants()}
       >
         Sign in again

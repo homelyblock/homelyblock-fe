@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { controlClassName } from "@/components/ui/control";
+import { useI18n } from "@/i18n/provider";
 import { Field } from "./field";
 
 type PasswordFieldProps = {
@@ -23,6 +24,7 @@ export function PasswordField({
   required,
   minLength,
 }: PasswordFieldProps) {
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
 
   return (
@@ -44,10 +46,10 @@ export function PasswordField({
           className="absolute top-1/2 right-2 z-10 -translate-y-1/2 rounded px-1.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
           aria-pressed={visible}
           aria-controls={id}
-          aria-label={visible ? `Hide ${label}` : `Show ${label}`}
+          aria-label={visible ? `${t("work.hide")} ${label}` : `${t("work.show")} ${label}`}
           onClick={() => setVisible((current) => !current)}
         >
-          {visible ? "Hide" : "Show"}
+          {visible ? t("work.hide") : t("work.show")}
         </button>
       </div>
     </Field>

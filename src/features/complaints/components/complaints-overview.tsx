@@ -8,6 +8,7 @@ import { filterControlClassName } from "@/components/ui/control";
 import { ListPager } from "@/components/ui/list-pager";
 import { formatStatus } from "@/components/ui/status-tone";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { formatDateTime } from "@/lib/format-date";
 import { ApiError } from "@/services/api-client";
 import { fetchComplaintDashboard, fetchComplaints } from "../api";
@@ -28,6 +29,7 @@ export function ComplaintsOverview({
   societyId,
   canManage,
 }: ComplaintsOverviewProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<ComplaintStatus | "">("");
   const [category, setCategory] = useState<ComplaintCategory | "">("");
   const [priority, setPriority] = useState<ComplaintPriority | "">("");
@@ -71,12 +73,10 @@ export function ComplaintsOverview({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {canManage ? "Complaints" : "My complaints"}
+            {canManage ? t("work.complaintsTitle") : t("work.complaintsMine")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {canManage
-              ? "Track open service requests, assignments, and resolutions for this society."
-              : "Submit and follow plumbing, electrical, and other service requests for your unit."}
+            {canManage ? t("work.complaintsAdminHelp") : t("work.complaintsResidentHelp")}
           </p>
         </div>
         {!canManage ? (
@@ -93,7 +93,7 @@ export function ComplaintsOverview({
         <section className="space-y-3" aria-label="Complaint dashboard">
           {dashboardQuery.isLoading ? (
             <p className="text-sm text-muted-foreground" role="status">
-              Loading dashboard…
+              {t("work.loading")}
             </p>
           ) : null}
           {dashboardQuery.isError ? (
@@ -103,7 +103,7 @@ export function ComplaintsOverview({
             >
               {dashboardQuery.error instanceof ApiError
                 ? dashboardQuery.error.message
-                : "Unable to load dashboard."}
+                : t("work.loadFailed")}
             </p>
           ) : null}
           {dashboardQuery.data ? (
@@ -154,7 +154,7 @@ export function ComplaintsOverview({
           }}
           className={filterControlClassName}
         >
-          <option value="">All statuses</option>
+          <option value="">{t("work.allStatuses")}</option>
           {(
             [
               "OPEN",
@@ -179,7 +179,7 @@ export function ComplaintsOverview({
           }}
           className={filterControlClassName}
         >
-          <option value="">All categories</option>
+          <option value="">{t("work.allCategories")}</option>
           {(
             [
               "PLUMBING",
@@ -206,7 +206,7 @@ export function ComplaintsOverview({
           }}
           className={filterControlClassName}
         >
-          <option value="">All priorities</option>
+          <option value="">{t("work.allPriorities")}</option>
           {(["LOW", "MEDIUM", "HIGH", "URGENT"] as ComplaintPriority[]).map(
             (value) => (
               <option key={value} value={value}>
@@ -220,7 +220,7 @@ export function ComplaintsOverview({
       <section className="space-y-3" aria-label="Complaint list">
         {listQuery.isLoading ? (
           <p className="text-sm text-muted-foreground" role="status">
-            Loading complaints…
+            {t("work.loading")}
           </p>
         ) : null}
         {listQuery.isError ? (
@@ -230,7 +230,7 @@ export function ComplaintsOverview({
           >
             {listQuery.error instanceof ApiError
               ? listQuery.error.message
-              : "Unable to load complaints."}
+              : t("work.loadFailed")}
           </p>
         ) : null}
         {!listQuery.isLoading &&

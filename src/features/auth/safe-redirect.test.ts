@@ -24,6 +24,10 @@ describe("safeAuthRedirectPath", () => {
     assert.equal(safeAuthRedirectPath("/sign-in?next=/profile"), "/societies");
     assert.equal(safeAuthRedirectPath("/session-expired"), "/societies");
     assert.equal(safeAuthRedirectPath("/auth/callback"), "/societies");
+    assert.equal(
+      safeAuthRedirectPath("/auth/update-password"),
+      "/auth/update-password",
+    );
   });
 
   it("falls back when missing", () => {

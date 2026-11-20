@@ -8,6 +8,7 @@ import { filterControlClassName } from "@/components/ui/control";
 import { ListPager } from "@/components/ui/list-pager";
 import { formatStatus } from "@/components/ui/status-tone";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { formatDateTime } from "@/lib/format-date";
 import { ApiError } from "@/services/api-client";
 import { fetchVisitors } from "../api";
@@ -30,6 +31,7 @@ type VisitorsListProps = {
 };
 
 export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<VisitorStatus | "">("");
   const [page, setPage] = useState(1);
 
@@ -56,15 +58,13 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">Visitors</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("work.visitorsTitle")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {canManage
-              ? "Approvals, walk-ins, and check-in."
-              : "Visitors for your unit, including requests awaiting approval."}
+            {canManage ? t("work.visitorsAdmin") : t("work.visitorsResident")}
           </p>
           {pendingTotal > 0 ? (
             <p className="mt-2 text-sm font-medium text-warning">
-              {pendingTotal} request{pendingTotal === 1 ? "" : "s"} awaiting approval
+              {t("work.awaitingApproval", { count: pendingTotal })}
             </p>
           ) : null}
         </div>
@@ -85,7 +85,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
               }}
               className={filterControlClassName}
             >
-              <option value="">All</option>
+              <option value="">{t("work.all")}</option>
               {STATUSES.map((value) => (
                 <option key={value} value={value}>
                   {formatStatus(value)}
@@ -113,7 +113,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground" role="status">
-          Loading visitors…
+          {t("work.loading")}
         </p>
       ) : null}
       {query.isError ? (
@@ -123,7 +123,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
         >
           {query.error instanceof ApiError
             ? query.error.message
-            : "Unable to load visitors."}
+            : t("work.loadFailed")}
         </p>
       ) : null}
       {!query.isLoading && !query.isError && visitors.length === 0 ? (

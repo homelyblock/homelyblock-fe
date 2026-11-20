@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { preservedSubmit } from "@/lib/form-submit";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ListPager } from "@/components/ui/list-pager";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
@@ -27,16 +28,24 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [editing, setEditing] = useState<Building | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
 
   const query = useQuery({
-    queryKey: ["buildings", societyId],
+    queryKey: ["buildings", societyId, page, submittedSearch],
     enabled: canManage,
+    placeholderData: (previous) => previous,
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchBuildings(token, societyId);
+      return fetchBuildings(token, societyId, {
+        page,
+        limit: 25,
+        ...(submittedSearch ? { q: submittedSearch } : {}),
+      });
     },
   });
 
@@ -118,12 +127,34 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
     );
   }
 
-  const buildings = query.data ?? [];
+  const buildings = query.data?.items ?? [];
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("forms.buildingsTitle")}</h2>
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setPage(1);
+            setSubmittedSearch(search.trim());
+          }}
+        >
+          <label className="sr-only" htmlFor="building-search">
+            {t("directory.searchBuildings")}
+          </label>
+          <input
+            id="building-search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("directory.searchBuildings")}
+            className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card px-3 text-sm"
+          />
+          <Button type="submit" variant="outline">
+            {t("directory.search")}
+          </Button>
+        </form>
         {buildings.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("forms.noBuildings")}</p>
         ) : (
@@ -157,6 +188,13 @@ export function BuildingsPanel({ societyId, canManage }: BuildingsPanelProps) {
             ))}
           </ul>
         )}
+        <ListPager
+          page={page}
+          pageSize={query.data?.limit ?? 25}
+          total={query.data?.total ?? 0}
+          disabled={query.isFetching}
+          onPage={setPage}
+        />
       </div>
 
       {canManage ? (

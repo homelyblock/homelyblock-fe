@@ -41,7 +41,7 @@ export function ContactForm() {
     setStatus("pending");
     setMessage(null);
     try {
-      await apiRequest<{ data: { received: boolean } }>("/api/v1/contact", {
+      const response = await apiRequest<{ data: { received: boolean; emailed?: boolean } }>("/api/v1/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -57,13 +57,17 @@ export function ContactForm() {
       setDraft(empty);
       setWebsite("");
       setStatus("sent");
-      setMessage("Your message has been received. Society issues should still go to your society administrator.");
+      setMessage(
+        response.data.emailed
+          ? t("feedback.contactSent")
+          : t("feedback.contactStored"),
+      );
     } catch (error) {
       setStatus("error");
       setMessage(
         error instanceof ApiError && error.status === 429
-          ? "Too many messages were sent from this network. Wait a few minutes and try again."
-          : "The message could not be sent. Check your connection and try again.",
+          ? t("feedback.contactLimited")
+          : t("feedback.contactFailed"),
       );
     } finally {
       flight.current = false;

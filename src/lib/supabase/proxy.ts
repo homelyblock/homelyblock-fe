@@ -48,6 +48,14 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
+  const recoveryRedirect = await consumePasswordRecovery(request, supabase);
+  if (recoveryRedirect) {
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      recoveryRedirect.cookies.set(cookie);
+    });
+    return recoveryRedirect;
+  }
+
   // Refresh the session. Do not trust getSession() alone for authorization.
   const { data } = await supabase.auth.getClaims();
   const isAuthenticated = Boolean(data?.claims);
@@ -65,4 +73,44 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse;
+}
+
+/**
+ * Recovery emails can land on the password form with a one-time code.
+ * Exchange it here so the session cookie is set before the page renders.
+ */
+async function consumePasswordRecovery(
+  request: NextRequest,
+  supabase: {
+    auth: {
+      exchangeCodeForSession: (
+        code: string,
+      ) => Promise<{ error: { message: string } | null }>;
+      verifyOtp: (input: {
+        type: "recovery";
+        token_hash: string;
+      }) => Promise<{ error: { message: string } | null }>;
+    };
+  },
+): Promise<NextResponse | null> {
+  if (request.nextUrl.pathname !== "/auth/update-password") return null;
+  const code = request.nextUrl.searchParams.get("code");
+  const tokenHash = request.nextUrl.searchParams.get("token_hash");
+  const otpType = request.nextUrl.searchParams.get("type");
+  if (!code && !(tokenHash && otpType === "recovery")) return null;
+
+  const { error } = code
+    ? await supabase.auth.exchangeCodeForSession(code)
+    : await supabase.auth.verifyOtp({
+        type: "recovery",
+        token_hash: tokenHash ?? "",
+      });
+
+  const url = request.nextUrl.clone();
+  url.search = "";
+  if (error) {
+    url.pathname = "/password-reset";
+    url.searchParams.set("error", "recovery");
+  }
+  return NextResponse.redirect(url);
 }

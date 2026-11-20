@@ -4,7 +4,9 @@ import type {
   CreateBuildingInput,
   CreateMembershipInput,
   CreateUnitInput,
+  ListQuery,
   Membership,
+  Page,
   Unit,
   UpdateBuildingInput,
   UpdateMembershipInput,
@@ -13,15 +15,28 @@ import type {
 
 type DataEnvelope<T> = { data: T };
 
+function queryString(query?: ListQuery): string {
+  const params = new URLSearchParams();
+  if (query?.page) params.set("page", String(query.page));
+  if (query?.limit) params.set("limit", String(query.limit));
+  if (query?.q) params.set("q", query.q);
+  if (query?.buildingId) params.set("buildingId", query.buildingId);
+  if (query?.status) params.set("status", query.status);
+  if (query?.role) params.set("role", query.role);
+  const text = params.toString();
+  return text ? `?${text}` : "";
+}
+
 export async function fetchBuildings(
   accessToken: string,
   societyId: string,
-): Promise<Building[]> {
-  const response = await apiRequest<DataEnvelope<{ items: Building[] }>>(
-    `/api/v1/societies/${societyId}/buildings`,
+  query?: ListQuery,
+): Promise<Page<Building>> {
+  const response = await apiRequest<DataEnvelope<Page<Building>>>(
+    `/api/v1/societies/${societyId}/buildings${queryString(query)}`,
     { accessToken },
   );
-  return response.data.items;
+  return response.data;
 }
 
 export async function createBuilding(
@@ -62,18 +77,13 @@ export async function updateBuilding(
 export async function fetchUnits(
   accessToken: string,
   societyId: string,
-  buildingId?: string,
-): Promise<Unit[]> {
-  const params = new URLSearchParams();
-  if (buildingId) {
-    params.set("buildingId", buildingId);
-  }
-  const query = params.toString();
-  const response = await apiRequest<DataEnvelope<{ items: Unit[] }>>(
-    `/api/v1/societies/${societyId}/units${query ? `?${query}` : ""}`,
+  query?: ListQuery,
+): Promise<Page<Unit>> {
+  const response = await apiRequest<DataEnvelope<Page<Unit>>>(
+    `/api/v1/societies/${societyId}/units${queryString(query)}`,
     { accessToken },
   );
-  return response.data.items;
+  return response.data;
 }
 
 export async function createUnit(
@@ -114,12 +124,13 @@ export async function updateUnit(
 export async function fetchMembers(
   accessToken: string,
   societyId: string,
-): Promise<Membership[]> {
-  const response = await apiRequest<DataEnvelope<{ items: Membership[] }>>(
-    `/api/v1/societies/${societyId}/members`,
+  query?: ListQuery,
+): Promise<Page<Membership>> {
+  const response = await apiRequest<DataEnvelope<Page<Membership>>>(
+    `/api/v1/societies/${societyId}/members${queryString(query)}`,
     { accessToken },
   );
-  return response.data.items;
+  return response.data;
 }
 
 export async function createMembership(

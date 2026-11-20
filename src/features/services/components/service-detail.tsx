@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import {
   activateService,
@@ -16,6 +17,7 @@ import {
 } from "../api";
 import { formatIndianPhone } from "@/lib/indian-phone";
 import { telHref, whatsappHref } from "../links";
+import { WrongSocietyNotice, wrongSocietyHref } from "@/features/shell/wrong-society";
 
 type ServiceDetailViewProps = {
   societyId: string;
@@ -28,6 +30,7 @@ export function ServiceDetailView({
   serviceId,
   canManage,
 }: ServiceDetailViewProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -71,6 +74,13 @@ export function ServiceDetailView({
   }
 
   const provider = query.data;
+  if (provider.societyId !== societyId) {
+    return (
+      <WrongSocietyNotice
+        href={wrongSocietyHref(provider.societyId, `/services/${provider.id}`)}
+      />
+    );
+  }
   const whatsapp = provider.whatsappNumber
     ? whatsappHref(provider.whatsappNumber)
     : null;
@@ -149,12 +159,12 @@ export function ServiceDetailView({
         ) : null}
         {provider.contactPerson ? (
           <p>
-            <span className="font-medium text-foreground">Contact:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.contact")}:</span>{" "}
             {provider.contactPerson}
           </p>
         ) : null}
         <p>
-          <span className="font-medium text-foreground">Phone:</span>{" "}
+          <span className="font-medium text-foreground">{t("detail.phone")}:</span>{" "}
           <a
             href={telHref(provider.phone)}
             className="underline-offset-4 hover:underline"
@@ -164,7 +174,7 @@ export function ServiceDetailView({
         </p>
         {whatsapp ? (
           <p>
-            <span className="font-medium text-foreground">WhatsApp:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.whatsapp")}:</span>{" "}
             <a
               href={whatsapp}
               target="_blank"
@@ -177,7 +187,7 @@ export function ServiceDetailView({
         ) : null}
         {provider.address ? (
           <p>
-            <span className="font-medium text-foreground">Address:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.address")}:</span>{" "}
             {provider.address}
           </p>
         ) : null}

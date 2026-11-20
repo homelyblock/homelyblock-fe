@@ -12,6 +12,7 @@ import { AuthStatus } from "@/features/auth/components/auth-status";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
 import { formatDateTime } from "@/lib/format-date";
 import { ApiError } from "@/services/api-client";
+import { WrongSocietyNotice, wrongSocietyHref } from "@/features/shell/wrong-society";
 import {
   archiveNotice,
   deleteNotice,
@@ -52,7 +53,8 @@ export function NoticeDetailView({
 
   const readershipQuery = useQuery({
     queryKey: ["notice-readership", noticeId],
-    enabled: canManage && Boolean(noticeQuery.data),
+    enabled:
+      canManage && noticeQuery.data?.societyId === societyId,
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
@@ -113,6 +115,13 @@ export function NoticeDetailView({
   const notice = noticeQuery.data;
   if (!notice) {
     return null;
+  }
+  if (notice.societyId !== societyId) {
+    return (
+      <WrongSocietyNotice
+        href={wrongSocietyHref(notice.societyId, `/notices/${notice.id}`)}
+      />
+    );
   }
 
   return (

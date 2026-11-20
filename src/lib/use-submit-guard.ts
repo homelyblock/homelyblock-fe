@@ -1,18 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useTransition } from "react";
-import { runExclusive } from "./form-submit";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 /** One in-flight mutation per component, including Enter and double-clicks. */
 export function useSubmitGuard() {
   const gate = useRef(false);
-  const [pending, startTransition] = useTransition();
-  const guard = useCallback(
-    (work: () => Promise<void>) => {
-      runExclusive(gate, startTransition, work);
-    },
-    [startTransition],
-  );
+  const [pending, setPending] = useState(false);
+  const guard = useCallback((work: () => Promise<void>) => {
+    if (gate.current) return false;
+    gate.current = true;
+    setPending(true);
+    void work().finally(() => {
+      gate.current = false;
+      setPending(false);
+    });
+    return true;
+  }, []);
   return { pending, guard };
 }
 

@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { controlClassName, textareaClassName } from "@/components/ui/control";
+import { OptionSearch } from "@/components/ui/option-search";
+import { useI18n } from "@/i18n/provider";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
@@ -25,6 +27,7 @@ type NoticeFormProps = {
 };
 
 export function NoticeForm({ societyId, notice }: NoticeFormProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -36,30 +39,41 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
   const [buildingId, setBuildingId] = useState(
     notice?.targetBuildingId ?? "",
   );
+  const [unitId, setUnitId] = useState(notice?.targetUnitId ?? "");
+  const [buildingSearch, setBuildingSearch] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
 
   const buildingsQuery = useQuery({
-    queryKey: ["buildings", societyId],
+    queryKey: ["buildings", societyId, buildingSearch],
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchBuildings(token, societyId);
+      return fetchBuildings(token, societyId, {
+        limit: 100,
+        ...(buildingSearch.trim() ? { q: buildingSearch.trim() } : {}),
+      });
     },
   });
 
   const unitsQuery = useQuery({
-    queryKey: ["units", societyId, buildingId || "all"],
+    queryKey: ["units", societyId, buildingId || "all", unitSearch],
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchUnits(token, societyId, buildingId || undefined);
+      return fetchUnits(token, societyId, {
+        limit: 100,
+        ...(buildingId ? { buildingId } : {}),
+        ...(unitSearch.trim() ? { q: unitSearch.trim() } : {}),
+      });
     },
   });
 
-  const units = useMemo(() => unitsQuery.data ?? [], [unitsQuery.data]);
+  const units = useMemo(() => unitsQuery.data?.items ?? [], [unitsQuery.data]);
+  const selectedUnitId = units.some((unit) => unit.id === unitId) ? unitId : "";
 
   function onSubmit(formData: FormData) {
     const parsed = noticeFormSchema.safeParse({
@@ -199,7 +213,7 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             htmlFor="notice-category"
             className="block text-sm font-medium text-foreground"
           >
-            Category
+            {t("complaints.category")}
           </label>
           <select
             id="notice-category"
@@ -207,11 +221,13 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             defaultValue={notice?.category ?? "GENERAL"}
             className={controlClassName}
           >
-            <option value="GENERAL">GENERAL</option>
-            <option value="MAINTENANCE">MAINTENANCE</option>
-            <option value="EVENT">EVENT</option>
-            <option value="EMERGENCY">EMERGENCY</option>
-            <option value="IMPORTANT">IMPORTANT</option>
+            {(["GENERAL", "MAINTENANCE", "EVENT", "EMERGENCY", "IMPORTANT"] as const).map(
+              (value) => (
+                <option key={value} value={value}>
+                  {t(`status.${value}`)}
+                </option>
+              ),
+            )}
           </select>
         </div>
 
@@ -220,7 +236,7 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             htmlFor="notice-audience"
             className="block text-sm font-medium text-foreground"
           >
-            Audience
+            {t("work.audience")}
           </label>
           <select
             id="notice-audience"
@@ -231,9 +247,9 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             }
             className={controlClassName}
           >
-            <option value="SOCIETY">Entire society</option>
-            <option value="BUILDING">Specific building</option>
-            <option value="UNIT">Specific unit</option>
+            <option value="SOCIETY">{t("work.entireSociety")}</option>
+            <option value="BUILDING">{t("work.specificBuilding")}</option>
+            <option value="UNIT">{t("work.specificUnit")}</option>
           </select>
         </div>
       </div>
@@ -244,22 +260,40 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             htmlFor="notice-building"
             className="block text-sm font-medium text-foreground"
           >
-            Building
+            {t("work.building")}
           </label>
+          <OptionSearch
+            id="notice-building-search"
+            label={t("work.findBuilding")}
+            value={buildingSearch}
+            onChange={setBuildingSearch}
+            total={buildingsQuery.data?.total}
+            shown={buildingsQuery.data?.items.length}
+          />
           <select
             id="notice-building"
             name="targetBuildingId"
             value={buildingId}
-            onChange={(event) => setBuildingId(event.target.value)}
+            onChange={(event) => {
+              setBuildingId(event.target.value);
+              setUnitId("");
+            }}
             className={controlClassName}
           >
-            <option value="">Select a building</option>
-            {(buildingsQuery.data ?? []).map((building) => (
+            <option value="">{t("work.selectBuilding")}</option>
+            {(buildingsQuery.data?.items ?? []).map((building) => (
               <option key={building.id} value={building.id}>
                 {building.name} ({building.code})
               </option>
             ))}
           </select>
+          {buildingsQuery.isError ? (
+            <p className="text-sm text-destructive" role="alert">
+              {buildingsQuery.error instanceof ApiError
+                ? buildingsQuery.error.message
+                : t("work.buildingsFailed")}
+            </p>
+          ) : null}
           {fieldErrors.targetBuildingId?.length ? (
             <p className="text-sm text-destructive">
               {fieldErrors.targetBuildingId[0]}
@@ -274,21 +308,37 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
             htmlFor="notice-unit"
             className="block text-sm font-medium text-foreground"
           >
-            Unit
+            {t("work.unit")}
           </label>
+          <OptionSearch
+            id="notice-unit-search"
+            label={t("work.findUnit")}
+            value={unitSearch}
+            onChange={setUnitSearch}
+            total={unitsQuery.data?.total}
+            shown={units.length}
+          />
           <select
             id="notice-unit"
             name="targetUnitId"
-            defaultValue={notice?.targetUnitId ?? ""}
+            value={selectedUnitId}
+            onChange={(event) => setUnitId(event.target.value)}
             className={controlClassName}
           >
-            <option value="">Select a unit</option>
+            <option value="">{t("work.selectUnit")}</option>
             {units.map((unit) => (
               <option key={unit.id} value={unit.id}>
                 {unit.unitNumber}
               </option>
             ))}
           </select>
+          {unitsQuery.isError ? (
+            <p className="text-sm text-destructive" role="alert">
+              {unitsQuery.error instanceof ApiError
+                ? unitsQuery.error.message
+                : "Unable to load units."}
+            </p>
+          ) : null}
           {fieldErrors.targetUnitId?.length ? (
             <p className="text-sm text-destructive">
               {fieldErrors.targetUnitId[0]}
@@ -298,7 +348,16 @@ export function NoticeForm({ societyId, notice }: NoticeFormProps) {
       ) : null}
 
       <AuthStatus status={status} message={message} />
-      <Button type="submit" disabled={pending}>
+      <Button
+        type="submit"
+        disabled={
+          pending ||
+          buildingsQuery.isLoading ||
+          buildingsQuery.isError ||
+          (audienceType === "UNIT" &&
+            (unitsQuery.isLoading || unitsQuery.isError))
+        }
+      >
         {pending ? "Saving…" : notice ? "Update draft" : "Save draft"}
       </Button>
     </form>

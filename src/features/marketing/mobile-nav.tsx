@@ -8,6 +8,7 @@ import { useI18n } from "@/i18n/provider";
 
 const LINK_KEYS: Record<string, string> = {
   "/features": "marketing.features",
+  "/#solutions": "marketing.solutions",
   "/how-it-works": "marketing.how",
   "/faq": "marketing.faq",
   "/contact": "marketing.contact",
@@ -30,7 +31,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
     <div className="lg:hidden">
       <button
         type="button"
-        className="inline-flex h-10 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium"
+        className="inline-flex h-11 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium"
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label={open ? t("marketing.closeMenu") : t("marketing.openMenu")}
@@ -70,16 +71,13 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                   {t(LINK_KEYS[link.href] ?? link.label)}
                 </DrawerLink>
               ))}
-              <DrawerLink href="/help" onClick={() => setOpen(false)}>
-                {t("marketing.help")}
-              </DrawerLink>
             </div>
             <div className="mt-auto space-y-3 border-t border-border pt-4">
               <ThemeSwitcher />
               {signedIn ? (
                 <Link
                   href="/societies"
-                  className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-primary text-base font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
                   onClick={() => setOpen(false)}
                 >
                   {t("marketing.openApp")}
@@ -88,14 +86,14 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                 <div className="grid gap-2">
                   <Link
                     href="/sign-in"
-                    className="inline-flex h-11 items-center justify-center rounded-lg border border-border text-sm font-medium"
+                    className="inline-flex h-12 items-center justify-center rounded-lg border border-border text-base font-medium hover:bg-accent"
                     onClick={() => setOpen(false)}
                   >
                     {t("marketing.login")}
                   </Link>
                   <Link
                     href="/sign-up"
-                    className="inline-flex h-11 items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground"
+                    className="inline-flex h-12 items-center justify-center rounded-lg bg-primary text-base font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
                     onClick={() => setOpen(false)}
                   >
                     {t("marketing.getStarted")}
@@ -120,7 +118,7 @@ function DrawerLink({
   onClick: () => void;
 }) {
   return (
-    <Link href={href} className="rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted" onClick={onClick}>
+    <Link href={href} className="rounded-lg px-3 py-3 text-base font-medium hover:bg-accent" onClick={onClick}>
       {children}
     </Link>
   );

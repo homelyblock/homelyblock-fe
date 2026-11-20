@@ -1,5 +1,5 @@
 import { getPublicConfig } from "@/config/public-env";
-import { ApiError, apiRequest } from "@/services/api-client";
+import { ApiError, apiRequest, redirectIfSessionExpired } from "@/services/api-client";
 import type {
   Bill,
   BillingDashboard,
@@ -244,6 +244,7 @@ export async function downloadInvoicePdf(
     },
   });
   if (!response.ok) {
+    redirectIfSessionExpired(response.status);
     throw new ApiError(
       "Unable to download invoice PDF",
       response.status,

@@ -49,7 +49,7 @@ export function AuthFormShell({
             <li>{t("auth.panelPoint3")}</li>
           </ul>
         </div>
-        <p className="text-sm text-forest-foreground/70">{t("auth.panelFoot")}</p>
+        <p className="text-sm text-forest-foreground/80">{t("auth.panelFoot")}</p>
       </section>
       <main id="main" className="flex flex-col justify-center bg-background px-4 py-10 sm:px-6">
         <div className={`motion-rise mx-auto w-full ${wide ? "max-w-xl" : "max-w-md"}`}>

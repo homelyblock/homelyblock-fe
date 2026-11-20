@@ -2,6 +2,8 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { StatusPage } from "@/components/layout/status-views";
 
+export const instant = false;
+
 export default function NotFound() {
   return (
     <StatusPage

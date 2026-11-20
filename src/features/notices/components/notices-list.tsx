@@ -6,8 +6,8 @@ import { useState } from "react";
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import { filterControlClassName } from "@/components/ui/control";
 import { ListPager } from "@/components/ui/list-pager";
-import { formatStatus } from "@/components/ui/status-tone";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { formatDateTime } from "@/lib/format-date";
 import { ApiError } from "@/services/api-client";
 import { fetchNotices } from "../api";
@@ -22,6 +22,7 @@ type NoticesListProps = {
 };
 
 export function NoticesList({ societyId, canManage }: NoticesListProps) {
+  const { t } = useI18n();
   const [status, setStatus] = useState<NoticeStatus | "">("");
   const [page, setPage] = useState(1);
 
@@ -47,11 +48,9 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">Notices</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("work.noticesTitle")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {canManage
-              ? "Draft, publish, and review society announcements."
-              : "Published notices for your society."}
+            {canManage ? t("work.noticesAdmin") : t("work.noticesResident")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -62,7 +61,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
                   htmlFor="notice-status-filter"
                   className="block text-sm font-medium text-foreground"
                 >
-                  Status
+                  {t("directory.status")}
                 </label>
                 <select
                   id="notice-status-filter"
@@ -73,10 +72,10 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
                   }}
                   className={filterControlClassName}
                 >
-                  <option value="">All</option>
+                  <option value="">{t("work.all")}</option>
                   {STATUSES.map((value) => (
                     <option key={value} value={value}>
-                      {formatStatus(value)}
+                      {t(`status.${value}`)}
                     </option>
                   ))}
                 </select>
@@ -85,7 +84,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
                 href={`/societies/${societyId}/notices/new`}
                 className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
               >
-                Create notice
+                {t("work.createNotice")}
               </Link>
             </>
           ) : null}
@@ -94,7 +93,7 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground" role="status">
-          Loading notices…
+          {t("work.loadingNotices")}
         </p>
       ) : null}
       {query.isError ? (
@@ -104,12 +103,12 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
         >
           {query.error instanceof ApiError
             ? query.error.message
-            : "Unable to load notices."}
+            : t("work.noticesFailed")}
         </p>
       ) : null}
       {!query.isLoading && !query.isError && notices.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {status ? "No notices match this filter." : "No notices yet."}
+          {status ? t("work.noNoticesFilter") : t("work.noNotices")}
         </p>
       ) : null}
 
@@ -127,15 +126,15 @@ export function NoticesList({ societyId, canManage }: NoticesListProps) {
                       {notice.title}
                     </p>
                     <StatusBadge value={notice.status} />
-                    {notice.isRead === false ? <Badge tone="info">Unread</Badge> : null}
+                    {notice.isRead === false ? <Badge tone="info">{t("work.unread")}</Badge> : null}
                     {notice.isRead ? (
                       <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                        Read
+                        {t("work.read")}
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground capitalize">
-                    {formatStatus(notice.category)} · {formatStatus(notice.audienceType)} audience
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t(`status.${notice.category}`)} · {t(`status.${notice.audienceType}`)}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Published {formatDateTime(notice.publishedAt)}

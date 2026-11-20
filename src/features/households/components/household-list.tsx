@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import { formatIndianPhone } from "@/lib/indian-phone";
 import { fetchOwnHousehold } from "../api";
@@ -12,6 +13,7 @@ type HouseholdListProps = {
 };
 
 export function HouseholdList({ societyId }: HouseholdListProps) {
+  const { t } = useI18n();
   const query = useQuery({
     queryKey: ["household", societyId],
     queryFn: async () => {
@@ -25,7 +27,7 @@ export function HouseholdList({ societyId }: HouseholdListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">My Household</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("work.myHousehold")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Family and other occupants for your unit. Household members do not
             get login accounts.
@@ -41,7 +43,7 @@ export function HouseholdList({ societyId }: HouseholdListProps) {
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground" role="status">
-          Loading household…
+          {t("work.loading")}
         </p>
       ) : null}
       {query.isError ? (
@@ -51,7 +53,7 @@ export function HouseholdList({ societyId }: HouseholdListProps) {
         >
           {query.error instanceof ApiError
             ? query.error.message
-            : "Unable to load household."}
+            : t("work.loadFailed")}
         </p>
       ) : null}
       {!query.isLoading &&

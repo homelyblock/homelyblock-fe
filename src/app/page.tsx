@@ -9,8 +9,15 @@ export const metadata: Metadata = {
     absolute: "HomelyBlock — Your Society. Better Managed.",
   },
   description:
-    "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",
+    "Keep residents, homes, maintenance bills, visitors, complaints, and notices together. People see only the societies their role allows.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "HomelyBlock — Your Society. Better Managed.",
+    description:
+      "Keep residents, homes, maintenance bills, visitors, complaints, and notices together. People see only the societies their role allows.",
+    locale: "en_IN",
+    type: "website",
+  },
 };
 
 export const instant = false;

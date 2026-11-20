@@ -9,11 +9,23 @@ export const metadata: Metadata = privateRobots;
 
 export const instant = false;
 
-export default function PasswordResetPage() {
+type PasswordResetPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function PasswordResetPage({
+  searchParams,
+}: PasswordResetPageProps) {
   const configured = getSupabasePublicConfig() !== null;
+  const params = await searchParams;
 
   return (
     <AuthFormShell copy="reset" footer={<ResetFooter />}>
+      {params.error === "recovery" ? (
+        <Alert tone="warning">
+          That reset link is invalid or has expired. Request a new one.
+        </Alert>
+      ) : null}
       {!configured ? (
         <Alert tone="warning">
           Password reset is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.

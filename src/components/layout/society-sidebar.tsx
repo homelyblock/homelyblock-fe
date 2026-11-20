@@ -345,8 +345,8 @@ function NavLinks({
                       onClick={onNavigate}
                       className={
                         isActive
-                          ? "relative flex min-h-10 items-center gap-2.5 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground shadow-[inset_2px_0_0_var(--theme-primary)]"
-                          : "relative flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          ? "relative flex min-h-10 items-center gap-2.5 rounded-lg bg-sidebar-accent px-3 text-sm font-semibold text-sidebar-accent-foreground shadow-[inset_2px_0_0_var(--theme-nav-indicator)]"
+                          : "relative flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       }
                     >
                       <Icon aria-hidden className="size-4 shrink-0" />

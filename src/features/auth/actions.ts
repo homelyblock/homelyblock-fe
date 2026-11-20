@@ -304,7 +304,7 @@ export async function requestPasswordResetAction(
     const { error } = await supabase.auth.resetPasswordForEmail(
       parsed.data.email,
       {
-        redirectTo: `${origin}/auth/update-password`,
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/auth/update-password")}`,
       },
     );
 
@@ -360,6 +360,7 @@ export async function updatePasswordAction(
         message: error.message || "Unable to update password.",
       };
     }
+    await supabase.auth.signOut();
   } catch (error) {
     return {
       status: "error",
@@ -370,7 +371,7 @@ export async function updatePasswordAction(
     };
   }
 
-  redirect("/sign-in");
+  redirect("/sign-in?error=password_updated");
 }
 
 export async function signOutAction(formData: FormData): Promise<void> {

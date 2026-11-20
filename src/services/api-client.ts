@@ -36,6 +36,24 @@ export type ApiRequestOptions = RequestInit & {
   accessToken?: string | null;
 };
 
+export function redirectIfSessionExpired(status: number) {
+  if (
+    typeof window === "undefined" ||
+    status !== 401 ||
+    window.location.pathname.startsWith("/sign-in") ||
+    window.location.pathname.startsWith("/admin/sign-in") ||
+    window.location.pathname === "/session-expired"
+  ) {
+    return;
+  }
+  const next = `${window.location.pathname}${window.location.search}`;
+  // Full navigation is intentional: clear client query caches after auth loss.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- session expiry hard redirect
+  window.location.assign(
+    `/session-expired?next=${encodeURIComponent(next || "/societies")}`,
+  );
+}
+
 export async function apiRequest<T>(
   path: string,
   init: ApiRequestOptions = {},
@@ -57,19 +75,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await toApiError(response);
-    if (
-      typeof window !== "undefined" &&
-      error.status === 401 &&
-      !window.location.pathname.startsWith("/sign-in") &&
-      window.location.pathname !== "/session-expired"
-    ) {
-      const next = `${window.location.pathname}${window.location.search}`;
-      // Full navigation is intentional: clear client query caches after auth loss.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- session expiry hard redirect
-      window.location.assign(
-        `/session-expired?next=${encodeURIComponent(next || "/societies")}`,
-      );
-    }
+    redirectIfSessionExpired(error.status);
     throw error;
   }
 

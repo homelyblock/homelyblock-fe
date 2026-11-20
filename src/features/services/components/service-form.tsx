@@ -55,18 +55,30 @@ export function ServiceForm({ societyId, service }: ServiceFormProps) {
       try {
         const token = await getBrowserAccessToken();
         if (!token) throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
-        const payload = {
+        const filled = (value: string | undefined) => {
+          const trimmed = value?.trim() ?? "";
+          return trimmed.length > 0 ? trimmed : undefined;
+        };
+        const base = {
           name: parsed.data.name,
           category: parsed.data.category as ServiceProvider["category"],
-          description: parsed.data.description || undefined,
-          contactPerson: parsed.data.contactPerson || undefined,
           phone: parsed.data.phone,
-          whatsappNumber: parsed.data.whatsappNumber || undefined,
-          address: parsed.data.address || undefined,
         };
         const saved = service
-          ? await updateService(token, service.id, payload)
-          : await createService(token, societyId, payload);
+          ? await updateService(token, service.id, {
+              ...base,
+              description: filled(parsed.data.description) ?? null,
+              contactPerson: filled(parsed.data.contactPerson) ?? null,
+              whatsappNumber: filled(parsed.data.whatsappNumber) ?? null,
+              address: filled(parsed.data.address) ?? null,
+            })
+          : await createService(token, societyId, {
+              ...base,
+              description: filled(parsed.data.description),
+              contactPerson: filled(parsed.data.contactPerson),
+              whatsappNumber: filled(parsed.data.whatsappNumber),
+              address: filled(parsed.data.address),
+            });
         setStatus("success");
         setMessage(service ? "Provider updated." : "Provider created.");
         router.push(`/societies/${societyId}/services/${saved.id}`);

@@ -1,21 +1,21 @@
 import { PublicPage } from "@/features/marketing/public-page";
-import { publicPageMetadata } from "@/features/marketing/public-metadata";
+import { localizedPublicMetadata } from "@/features/marketing/localized-metadata";
 import { PrivacyPolicyBody } from "@/features/marketing/privacy-body";
+import { Tx } from "@/i18n/tx";
 
-export const metadata = publicPageMetadata({
-  title: "Privacy policy",
-  description: "How HomelyBlock stores account, society, household, billing, complaint, and visitor information.",
-  path: "/privacy-policy",
-});
+export async function generateMetadata() {
+  return localizedPublicMetadata(
+    "legalPages.privacyTitle",
+    "legalPages.privacyLead",
+    "/privacy-policy",
+  );
+}
 
 export const instant = false;
 
 export default function PrivacyPolicyPage() {
   return (
-    <PublicPage
-      title="Privacy policy"
-      description="What HomelyBlock stores, who can see it, and which Indian privacy duties are already in force."
-    >
+    <PublicPage title={<Tx k="legalPages.privacyTitle" />} description={<Tx k="legalPages.privacyLead" />}>
       <PrivacyPolicyBody />
     </PublicPage>
   );

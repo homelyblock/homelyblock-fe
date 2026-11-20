@@ -35,6 +35,9 @@ export default async function EditServicePage({ params }: PageProps) {
       redirect(`/societies/${societyId}/services/${serviceId}`);
     }
     service = await fetchService(token, serviceId);
+    if (service.societyId !== societyId) {
+      redirect(`/societies/${service.societyId}/services/${service.id}/edit`);
+    }
   } catch (error) {
     redirectForLoadFailure(error);
   }

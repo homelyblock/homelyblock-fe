@@ -10,6 +10,7 @@ import { controlClassName, fieldLabelClassName, textareaClassName } from "@/comp
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import {
   downloadInvoicePdf,
@@ -19,14 +20,15 @@ import {
   recordPayment,
   reversePayment,
 } from "../api";
-import { formatStatus } from "@/components/ui/status-tone";
 import {
   formatDate,
   formatDateTime,
   formatDateTimeLocalIndia,
   indiaDateTimeLocalToIso,
 } from "@/lib/format-date";
+import { triggerBlobDownload } from "@/lib/download-blob";
 import { formatMoney, formatPeriod } from "../format";
+import { WrongSocietyNotice, wrongSocietyHref } from "@/features/shell/wrong-society";
 import type { Payment } from "../types";
 
 type BillDetailViewProps = {
@@ -40,6 +42,7 @@ export function BillDetailView({
   billId,
   canManage,
 }: BillDetailViewProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const printRef = useRef<HTMLElement>(null);
   const paymentIdempotencyKeyRef = useRef<string | null>(null);
@@ -174,12 +177,7 @@ export function BillDetailView({
           throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
         }
         const blob = await downloadInvoicePdf(token, billId);
-        const objectUrl = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = objectUrl;
-        anchor.download = `invoice-${billId}.pdf`;
-        anchor.click();
-        URL.revokeObjectURL(objectUrl);
+        triggerBlobDownload(blob, `invoice-${billId}.pdf`);
         setStatus("success");
         setMessage("Invoice PDF downloaded.");
       } catch (error) {
@@ -203,7 +201,7 @@ export function BillDetailView({
     }
     reverseLock.current = true;
     setReverseError(undefined);
-    guard(async () => {
+    const started = guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -225,6 +223,7 @@ export function BillDetailView({
         reverseLock.current = false;
       }
     });
+    if (!started) reverseLock.current = false;
   }
 
   if (billQuery.isLoading) {
@@ -249,6 +248,13 @@ export function BillDetailView({
   }
 
   const bill = billQuery.data;
+  if (bill.societyId !== societyId) {
+    return (
+      <WrongSocietyNotice
+        href={wrongSocietyHref(bill.societyId, `/billing/bills/${bill.id}`)}
+      />
+    );
+  }
   const canRecordPayment =
     canManage &&
     ["PUBLISHED", "PARTIALLY_PAID", "OVERDUE"].includes(bill.status) &&
@@ -276,18 +282,18 @@ export function BillDetailView({
             disabled={pending}
             onClick={onDownloadPdf}
           >
-            Download PDF
+            {t("detail.downloadPdf")}
           </Button>
           <Button
             type="button"
             variant="secondary"
             onClick={() => window.print()}
           >
-            Print
+            {t("detail.print")}
           </Button>
           {canManage && bill.status === "DRAFT" ? (
             <Button type="button" disabled={pending} onClick={onPublish}>
-              Publish
+              {t("detail.publish")}
             </Button>
           ) : null}
         </div>
@@ -301,19 +307,19 @@ export function BillDetailView({
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <p className="text-sm text-foreground">
-            <span className="font-medium text-foreground">Invoice date:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.invoiceDate")}:</span>{" "}
             {formatDate(bill.invoiceDate)}
           </p>
           <p className="text-sm text-foreground">
-            <span className="font-medium text-foreground">Due date:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.dueDate")}:</span>{" "}
             {formatDate(bill.dueDate)}
           </p>
           <p className="text-sm text-foreground">
-            <span className="font-medium text-foreground">Period:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.period")}:</span>{" "}
             {bill.periodStart} → {bill.periodEnd}
           </p>
           <p className="text-sm text-foreground">
-            <span className="font-medium text-foreground">Outstanding:</span>{" "}
+            <span className="font-medium text-foreground">{t("detail.outstanding")}:</span>{" "}
             {formatMoney(bill.outstandingAmount)}
           </p>
         </div>
@@ -321,9 +327,9 @@ export function BillDetailView({
         <div className="max-w-full overflow-x-auto">
         <table className="w-full min-w-[20rem] text-left text-sm">
           <thead>
-            <tr className="border-b border-border text-muted-foreground">
-              <th className="py-2 font-medium">Description</th>
-              <th className="py-2 text-right font-medium">Amount</th>
+            <tr className="border-b border-border bg-table-header text-foreground">
+              <th className="py-2 font-medium">{t("detail.description")}</th>
+              <th className="py-2 text-right font-medium">{t("detail.amount")}</th>
             </tr>
           </thead>
           <tbody>
@@ -339,14 +345,14 @@ export function BillDetailView({
             {(bill.lineItems?.length ?? 0) === 0 ? (
               <>
                 <tr className="border-b border-border">
-                  <td className="py-2">Base maintenance</td>
+                  <td className="py-2">{t("detail.baseMaintenance")}</td>
                   <td className="py-2 text-right">
                     {formatMoney(bill.baseAmount)}
                   </td>
                 </tr>
                 {Number(bill.additionalAmount) > 0 ? (
                   <tr className="border-b border-border">
-                    <td className="py-2">Additional charges</td>
+                    <td className="py-2">{t("detail.additionalCharges")}</td>
                     <td className="py-2 text-right">
                       {formatMoney(bill.additionalAmount)}
                     </td>
@@ -354,7 +360,7 @@ export function BillDetailView({
                 ) : null}
                 {Number(bill.discountAmount) > 0 ? (
                   <tr className="border-b border-border">
-                    <td className="py-2">Discount</td>
+                    <td className="py-2">{t("detail.discount")}</td>
                     <td className="py-2 text-right">
                       -{formatMoney(bill.discountAmount)}
                     </td>
@@ -365,13 +371,13 @@ export function BillDetailView({
           </tbody>
           <tfoot>
             <tr>
-              <td className="pt-3 font-semibold text-foreground">Total</td>
+              <td className="pt-3 font-semibold text-foreground">{t("detail.total")}</td>
               <td className="pt-3 text-right font-semibold text-foreground">
                 {formatMoney(bill.totalAmount)}
               </td>
             </tr>
             <tr>
-              <td className="pt-1 text-foreground">Paid</td>
+              <td className="pt-1 text-foreground">{t("detail.paid")}</td>
               <td className="pt-1 text-right text-foreground">
                 {formatMoney(bill.paidAmount)}
               </td>
@@ -393,13 +399,13 @@ export function BillDetailView({
           className="space-y-4 rounded-lg border border-border bg-card p-4 print:hidden"
         >
           <h3 className="text-base font-semibold text-foreground">
-            Record payment
+            {t("detail.recordPayment")}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field
               id="amount"
               name="amount"
-              label="Amount"
+              label={t("detail.amount")}
               inputMode="decimal"
               placeholder={bill.outstandingAmount}
             />
@@ -408,7 +414,7 @@ export function BillDetailView({
                 htmlFor="method"
                 className="block text-sm font-medium text-foreground"
               >
-                Method
+                {t("detail.method")}
               </label>
               <select
                 id="method"
@@ -416,40 +422,40 @@ export function BillDetailView({
                 className={controlClassName}
                 defaultValue="UPI"
               >
-                <option value="CASH">CASH</option>
-                <option value="UPI">UPI</option>
-                <option value="BANK_TRANSFER">BANK_TRANSFER</option>
-                <option value="CHEQUE">CHEQUE</option>
-                <option value="OTHER">OTHER</option>
+                {(["CASH", "UPI", "BANK_TRANSFER", "CHEQUE", "OTHER"] as const).map((value) => (
+                  <option key={value} value={value}>
+                    {t(`status.${value}`)}
+                  </option>
+                ))}
               </select>
             </div>
             <Field
               id="paidAt"
               name="paidAt"
-              label="Payment date"
+              label={t("detail.paymentDate")}
               type="datetime-local"
               defaultValue={formatDateTimeLocalIndia()}
             />
             <Field
               id="referenceNumber"
               name="referenceNumber"
-              label="Reference number"
+              label={t("detail.reference")}
             />
           </div>
-          <Field id="notes" name="notes" label="Notes" />
+          <Field id="notes" name="notes" label={t("detail.notes")} />
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving…" : "Record payment"}
+            {pending ? t("detail.saving") : t("detail.recordPayment")}
           </Button>
         </form>
       ) : null}
 
       <section className="space-y-3 print:break-before-page">
         <h3 className="text-base font-semibold text-foreground">
-          Payment history
+          {t("detail.paymentHistory")}
         </h3>
         {paymentsQuery.isLoading ? (
           <p className="text-sm text-muted-foreground" role="status">
-            Loading payments…
+            {t("detail.loadingPayments")}
           </p>
         ) : null}
         {paymentsQuery.isError ? (
@@ -459,14 +465,14 @@ export function BillDetailView({
           >
             {paymentsQuery.error instanceof ApiError
               ? paymentsQuery.error.message
-              : "Unable to load payments."}
+              : t("detail.paymentsFailed")}
           </p>
         ) : null}
         {!paymentsQuery.isLoading &&
         !paymentsQuery.isError &&
         (paymentsQuery.data?.length ?? 0) === 0 ? (
           <p className="rounded-lg border border-dashed border-input bg-card px-4 py-6 text-sm text-muted-foreground">
-            No payments recorded yet.
+            {t("detail.noPayments")}
           </p>
         ) : null}
         <ul className="space-y-2">
@@ -504,7 +510,7 @@ export function BillDetailView({
                     setReverseTarget(payment);
                   }}
                 >
-                  Reverse
+                  {t("detail.reverse")}
                 </Button>
               ) : null}
             </li>
@@ -513,13 +519,20 @@ export function BillDetailView({
       </section>
       <ConfirmDialog
         open={reverseTarget !== null}
-        title="Reverse this payment?"
+        title={t("detail.reverseTitle")}
         description={
           reverseTarget
-            ? `Reverse ${formatMoney(reverseTarget.amount)} recorded by ${formatStatus(reverseTarget.method)} on ${formatDateTime(reverseTarget.paidAt)}${reverseTarget.referenceNumber ? `, reference ${reverseTarget.referenceNumber}` : ""}. The invoice balance is updated, and the payment stays in the history as reversed.`
+            ? t("detail.reverseBody", {
+                amount: formatMoney(reverseTarget.amount),
+                method: t(`status.${reverseTarget.method}`),
+                when: formatDateTime(reverseTarget.paidAt),
+                reference: reverseTarget.referenceNumber
+                  ? t("detail.referenceClause", { value: reverseTarget.referenceNumber })
+                  : "",
+              })
             : undefined
         }
-        confirmLabel="Reverse payment"
+        confirmLabel={t("detail.reverseConfirm")}
         pending={pending}
         error={reverseError}
         onCancel={() => {
@@ -532,7 +545,7 @@ export function BillDetailView({
       >
         <div className="space-y-1.5">
           <label htmlFor="reversal-reason" className={fieldLabelClassName}>
-            Reason
+            {t("detail.reason")}
             <span className="text-destructive" aria-hidden>
               {" "}
               *

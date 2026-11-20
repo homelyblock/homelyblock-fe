@@ -8,6 +8,7 @@ import { filterControlClassName } from "@/components/ui/control";
 import { ListPager } from "@/components/ui/list-pager";
 import { formatStatus } from "@/components/ui/status-tone";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import { fetchBillingDashboard, fetchBills } from "../api";
 import { formatDate } from "@/lib/format-date";
@@ -46,6 +47,7 @@ type BillingOverviewProps = {
 };
 
 export function BillingOverview({ societyId, canManage }: BillingOverviewProps) {
+  const { t } = useI18n();
   const now = useMemo(() => new Date(), []);
   const [periodYear, setPeriodYear] = useState(now.getFullYear());
   const [periodMonth, setPeriodMonth] = useState(now.getMonth() + 1);
@@ -112,12 +114,10 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {canManage ? "Billing" : "My bills"}
+            {canManage ? t("work.billingTitle") : t("work.billsMine")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {canManage
-              ? "Maintenance configuration, bill generation, collections, and invoice history."
-              : "Outstanding dues, invoice details, and payment history for your unit."}
+            {canManage ? t("work.billingAdminHelp") : t("work.billingResidentHelp")}
           </p>
         </div>
         {canManage ? (
@@ -204,7 +204,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
             }}
             className={filterControlClassName}
           >
-            <option value="">All</option>
+            <option value="">{t("work.all")}</option>
             {(canManage ? BILL_STATUSES : RESIDENT_BILL_STATUSES).map((value) => (
               <option key={value} value={value}>
                 {formatStatus(value)}
@@ -218,7 +218,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
         <section aria-label="Billing dashboard" className="space-y-3">
           {dashboardQuery.isLoading ? (
             <p className="text-sm text-muted-foreground" role="status">
-              Loading dashboard…
+              {t("work.loading")}
             </p>
           ) : null}
           {dashboardQuery.isError ? (
@@ -228,7 +228,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
             >
               {dashboardQuery.error instanceof ApiError
                 ? dashboardQuery.error.message
-                : "Unable to load billing dashboard."}
+                : t("work.loadFailed")}
             </p>
           ) : null}
           {dashboardQuery.data ? (
@@ -292,7 +292,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
         ) : null}
         {billsQuery.isLoading ? (
           <p className="text-sm text-muted-foreground" role="status">
-            Loading invoices…
+            {t("work.loading")}
           </p>
         ) : null}
         {billsQuery.isError ? (
@@ -302,7 +302,7 @@ export function BillingOverview({ societyId, canManage }: BillingOverviewProps) 
           >
             {billsQuery.error instanceof ApiError
               ? billsQuery.error.message
-              : "Unable to load invoices."}
+              : t("work.loadFailed")}
           </p>
         ) : null}
         {!billsQuery.isLoading &&

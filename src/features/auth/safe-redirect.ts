@@ -13,6 +13,9 @@ export function safeAuthRedirectPath(
   if (trimmed.includes("://")) return fallback;
   if (trimmed.includes("\\")) return fallback;
   const pathOnly = trimmed.split("?")[0]?.split("#")[0] ?? trimmed;
+  if (pathOnly === "/auth/update-password") {
+    return "/auth/update-password";
+  }
   if (
     pathOnly === "/sign-in" ||
     pathOnly === "/admin/sign-in" ||

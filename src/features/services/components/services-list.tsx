@@ -8,6 +8,7 @@ import { ListPager } from "@/components/ui/list-pager";
 import { formatStatus } from "@/components/ui/status-tone";
 import { useDebouncedValue } from "@/components/ui/use-debounced-value";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import { fetchServices } from "../api";
 import { telHref, whatsappHref } from "../links";
@@ -21,6 +22,7 @@ type ServicesListProps = {
 };
 
 export function ServicesList({ societyId, canManage }: ServicesListProps) {
+  const { t } = useI18n();
   const [category, setCategory] = useState<ServiceCategory | "">("");
   const [query, setQuery] = useState("");
   const [showInactive, setShowInactive] = useState(false);
@@ -57,11 +59,8 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">Services</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Society-managed directory of local service providers. Not a
-            marketplace.
-          </p>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("work.servicesTitle")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("work.servicesHelp")}</p>
         </div>
         {canManage ? (
           <Link
@@ -94,7 +93,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
           }}
           className={filterControlClassName}
         >
-          <option value="">All categories</option>
+          <option value="">{t("work.allCategories")}</option>
           {SERVICE_CATEGORIES.map((value) => (
             <option key={value} value={value}>
               {formatStatus(value)}
@@ -119,7 +118,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
 
       {listQuery.isLoading ? (
         <p className="text-sm text-muted-foreground" role="status">
-          Loading services…
+          {t("work.loading")}
         </p>
       ) : null}
       {listQuery.isError ? (
@@ -129,7 +128,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
         >
           {listQuery.error instanceof ApiError
             ? listQuery.error.message
-            : "Unable to load services."}
+            : t("work.loadFailed")}
         </p>
       ) : null}
       {!listQuery.isLoading && !listQuery.isError && items.length === 0 ? (

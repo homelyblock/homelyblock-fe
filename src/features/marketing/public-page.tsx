@@ -11,8 +11,8 @@ export async function PublicPage({
   children,
   layout = "article",
 }: {
-  title: string;
-  description: string;
+  title: ReactNode;
+  description: ReactNode;
   children: ReactNode;
   layout?: "article" | "wide";
 }) {

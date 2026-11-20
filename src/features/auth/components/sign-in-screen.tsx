@@ -6,6 +6,7 @@ import { safeAuthRedirectPath } from "../safe-redirect";
 import { loadSignInContinuation } from "../sign-in-gate";
 import type { AuthEntry } from "../account-routing";
 import { AuthFormShell } from "./auth-form-shell";
+import { SignInAlerts } from "./sign-in-alerts";
 import { SignInForm } from "./sign-in-form";
 
 type SignInScreenProps = {
@@ -34,23 +35,15 @@ export async function SignInScreen({
 
   return (
     <AuthFormShell copy={copy} footer={footer}>
-      {error === "auth_callback" ? (
-        <Alert>
-          That confirmation link could not be completed. Request a new email or sign in with your password.
-        </Alert>
-      ) : null}
-      {!configured ? (
-        <Alert tone="warning">
-          Sign-in is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
-        </Alert>
-      ) : (
+      <SignInAlerts error={error} configured={configured} />
+      {configured ? (
         <div className="space-y-4">
           {continuation.status === "rejected" ? (
             <Alert>{continuation.message}</Alert>
           ) : null}
           <SignInForm audience={audience} nextPath={requestedNext} />
         </div>
-      )}
+      ) : null}
     </AuthFormShell>
   );
 }

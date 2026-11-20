@@ -8,9 +8,11 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatStatus } from "@/components/ui/status-tone";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { formatDateTime } from "@/lib/format-date";
 import { formatIndianPhone } from "@/lib/indian-phone";
 import { ApiError } from "@/services/api-client";
+import { WrongSocietyNotice, wrongSocietyHref } from "@/features/shell/wrong-society";
 import {
   approveVisitor,
   cancelVisitor,
@@ -35,6 +37,7 @@ export function VisitorDetailView({
   currentUserId,
   residentUnitId = null,
 }: VisitorDetailProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -114,6 +117,13 @@ export function VisitorDetailView({
 
   const visitor = query.data;
   if (!visitor) return null;
+  if (visitor.societyId !== societyId) {
+    return (
+      <WrongSocietyNotice
+        href={wrongSocietyHref(visitor.societyId, `/visitors/${visitor.id}`)}
+      />
+    );
+  }
 
   const canDecide =
     visitor.status === "PENDING" &&
@@ -139,13 +149,13 @@ export function VisitorDetailView({
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Phone
+              {t("detail.phone")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">{formatIndianPhone(visitor.visitorPhone)}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Unit
+              {t("work.unit")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">
               {visitor.buildingCode ? `${visitor.buildingCode} · ` : ""}
@@ -154,7 +164,7 @@ export function VisitorDetailView({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Expected
+              {t("detail.expected")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">
               {formatDateTime(visitor.expectedAt)}
@@ -162,7 +172,7 @@ export function VisitorDetailView({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Vehicle
+              {t("detail.vehicle")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">
               {visitor.vehicleNumber ?? "—"}
@@ -170,7 +180,7 @@ export function VisitorDetailView({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Checked in
+              {t("detail.checkedInAt")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">
               {formatDateTime(visitor.checkedInAt)}
@@ -178,7 +188,7 @@ export function VisitorDetailView({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Checked out
+              {t("detail.checkedOutAt")}
             </dt>
             <dd className="mt-1 text-sm text-foreground">
               {formatDateTime(visitor.checkedOutAt)}

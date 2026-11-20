@@ -2,21 +2,20 @@
 
 import { Building2, House } from "lucide-react";
 import { useState } from "react";
+import { useI18n } from "@/i18n/provider";
 import { Field } from "./field";
 
 const roles = [
   {
     value: "SOCIETY_ADMIN",
-    title: "Society admin",
-    description:
-      "Create a new society and manage its residents, notices, and records.",
+    titleKey: "work.societyAdminTitle",
+    descriptionKey: "work.societyAdminHelp",
     icon: Building2,
   },
   {
     value: "RESIDENT_USER",
-    title: "Resident",
-    description:
-      "Register your login. A society admin connects you to your home before you can see society records.",
+    titleKey: "work.residentTitle",
+    descriptionKey: "work.residentHelp",
     icon: House,
   },
 ] as const;
@@ -26,6 +25,7 @@ type RoleSetupFieldsProps = {
 };
 
 export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
+  const { t } = useI18n();
   const [role, setRole] = useState("");
   const roleError = fieldErrors?.accountType;
 
@@ -33,7 +33,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
     <div className="space-y-4">
       <fieldset className="space-y-3" aria-invalid={Boolean(roleError?.length)}>
         <legend className="text-sm font-medium text-foreground">
-          How will you use HomelyBlock?
+          {t("work.useAs")}
         </legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {roles.map((option) => {
@@ -44,7 +44,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
                 key={option.value}
                 className={`flex cursor-pointer flex-col gap-3 rounded-xl border p-4 transition ${
                   selected
-                    ? "border-primary bg-primary/10 ring-1 ring-primary"
+                    ? "border-primary bg-accent ring-1 ring-primary"
                     : "border-border bg-background hover:border-primary/40"
                 }`}
               >
@@ -59,10 +59,10 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
                 />
                 <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <Icon className="size-4 text-primary" aria-hidden />
-                  {option.title}
+                  {t(option.titleKey)}
                 </span>
                 <span className="text-sm leading-6 text-muted-foreground">
-                  {option.description}
+                  {t(option.descriptionKey)}
                 </span>
               </label>
             );
@@ -80,7 +80,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
           <Field
             id="societyName"
             name="societyName"
-            label="Society name"
+            label={t("societyForm.name")}
             type="text"
             autoComplete="organization"
             required
@@ -90,7 +90,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
             <Field
               id="city"
               name="city"
-              label="City"
+              label={t("societyForm.city")}
               type="text"
               autoComplete="address-level2"
               required
@@ -99,7 +99,7 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
             <Field
               id="state"
               name="state"
-              label="State"
+              label={t("societyForm.state")}
               type="text"
               autoComplete="address-level1"
               error={fieldErrors?.state}
@@ -112,10 +112,10 @@ export function RoleSetupFields({ fieldErrors }: RoleSetupFieldsProps) {
         <Field
           id="phone"
           name="phone"
-          label="Phone"
+          label={t("profile.phone")}
           type="tel"
           autoComplete="tel"
-          placeholder="Optional"
+          placeholder={t("work.optional")}
           error={fieldErrors?.phone}
         />
       ) : null}

@@ -41,6 +41,11 @@ export default async function EditNoticePage({ params }: PageProps) {
       redirect(`/societies/${societyId}/notices/${noticeId}`);
     }
     notice = await fetchNotice(token, noticeId);
+    if (notice.societyId !== societyId) {
+      redirect(
+        `/societies/${notice.societyId}/notices/${notice.id}/edit`,
+      );
+    }
     if (notice.status !== "DRAFT") {
       redirect(`/societies/${societyId}/notices/${noticeId}`);
     }

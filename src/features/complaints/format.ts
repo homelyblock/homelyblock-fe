@@ -4,29 +4,27 @@ export function complaintStatusTone(status: ComplaintStatus): string {
   switch (status) {
     case "OPEN":
     case "REOPENED":
-      return "bg-amber-100 text-amber-900";
-    case "ACKNOWLEDGED":
-      return "bg-sky-100 text-sky-900";
     case "IN_PROGRESS":
-      return "bg-indigo-100 text-indigo-900";
+      return "bg-warning/10 text-warning";
+    case "ACKNOWLEDGED":
+      return "bg-info/10 text-info";
     case "RESOLVED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-success/10 text-success";
     case "CLOSED":
-      return "bg-slate-100 text-slate-700";
+      return "bg-muted text-foreground";
     default:
-      return "bg-slate-100 text-slate-700";
+      return "bg-muted text-foreground";
   }
 }
 
 export function complaintPriorityTone(priority: ComplaintPriority): string {
   switch (priority) {
     case "URGENT":
-      return "bg-red-100 text-red-900";
     case "HIGH":
-      return "bg-orange-100 text-orange-900";
+      return "bg-destructive/10 text-destructive";
     case "MEDIUM":
-      return "bg-amber-50 text-amber-900";
+      return "bg-warning/10 text-warning";
     default:
-      return "bg-slate-100 text-slate-700";
+      return "bg-muted text-foreground";
   }
 }

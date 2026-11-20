@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/features/marketing/mobile-nav";
 import { OpenCookiePreferences } from "@/features/marketing/cookie-consent";
 import { readOperatorIdentity } from "@/features/marketing/operator";
-import { footerLegalLinks, footerProductLinks, productNav } from "@/features/marketing/site-nav";
+import {
+  footerCompanyLinks,
+  footerLegalLinks,
+  footerProductLinks,
+  footerSupportLinks,
+  productNav,
+} from "@/features/marketing/site-nav";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { useI18n } from "@/i18n/provider";
@@ -17,6 +24,7 @@ type SiteHeaderProps = {
 
 const MARKETING_KEYS: Record<string, string> = {
   "/features": "marketing.features",
+  "/#solutions": "marketing.solutions",
   "/how-it-works": "marketing.how",
   "/faq": "marketing.faq",
   "/contact": "marketing.contact",
@@ -39,19 +47,29 @@ function marketingLabel(href: string, fallback: string, t: (key: string) => stri
 
 export function SiteHeader({ signedIn }: SiteHeaderProps) {
   const { t } = useI18n();
+  const pathname = usePathname();
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo href="/" />
-        <nav aria-label="Primary" className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex">
-          <Link href="/" className="hover:text-foreground">
-            {t("marketing.home")}
-          </Link>
-          {productNav.map((link) => (
-            <Link key={link.href} href={link.href} className="hover:text-foreground">
-              {marketingLabel(link.href, link.label, t)}
-            </Link>
-          ))}
+        <nav aria-label="Primary" className="hidden items-center gap-5 text-[15px] lg:flex">
+          {productNav.map((link) => {
+            const active = !link.href.startsWith("/#") && pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={
+                  active
+                    ? "font-medium text-foreground"
+                    : "font-medium text-muted-foreground hover:text-foreground"
+                }
+              >
+                {marketingLabel(link.href, link.label, t)}
+              </Link>
+            );
+          })}
         </nav>
         <div className="flex items-center gap-2">
           <ThemeSwitcher className="hidden sm:inline-flex" />
@@ -59,7 +77,7 @@ export function SiteHeader({ signedIn }: SiteHeaderProps) {
           {signedIn ? (
             <Link
               href="/societies"
-              className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground"
+              className="inline-flex h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
             >
               {t("marketing.openApp")}
             </Link>
@@ -67,13 +85,13 @@ export function SiteHeader({ signedIn }: SiteHeaderProps) {
             <>
               <Link
                 href="/sign-in"
-                className="hidden h-10 items-center rounded-lg px-3 text-sm font-medium text-foreground hover:bg-muted lg:inline-flex"
+                className="hidden h-11 items-center rounded-lg px-3 text-sm font-medium text-foreground hover:bg-accent lg:inline-flex"
               >
                 {t("marketing.login")}
               </Link>
               <Link
                 href="/sign-up"
-                className="hidden h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground lg:inline-flex"
+                className="hidden h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)] lg:inline-flex"
               >
                 {t("marketing.getStarted")}
               </Link>
@@ -91,49 +109,90 @@ export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
   const operator = readOperatorIdentity();
   return (
     <footer className="bg-forest text-forest-foreground">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr]">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="max-w-sm space-y-3">
           <Logo href="/" tone="inverse" />
-          <p className="text-sm leading-6 text-forest-foreground/80">
-            {t("marketing.blurb")}
-          </p>
-          <p className="text-sm leading-6 text-forest-foreground/80">
+          <p className="text-sm leading-6">{t("marketing.blurb")}</p>
+          <p className="text-sm leading-6">
             {operator.legalName
               ? `${operator.legalName}${operator.address ? `, ${operator.address}` : ""}.`
               : t("marketing.operatorMissing")}
           </p>
-          <p className="text-sm text-forest-foreground/70">{t("marketing.copyright")}</p>
+          {operator.supportEmail ? (
+            <p className="text-sm leading-6">
+              {t("marketing.supportEmail")}{" "}
+              <a className="underline underline-offset-4" href={`mailto:${operator.supportEmail}`}>
+                {operator.supportEmail}
+              </a>
+            </p>
+          ) : null}
+          {operator.grievanceEmail ? (
+            <p className="text-sm leading-6">
+              {t("marketing.privacyContact")}{" "}
+              <a className="underline underline-offset-4" href={`mailto:${operator.grievanceEmail}`}>
+                {operator.grievanceEmail}
+              </a>
+            </p>
+          ) : null}
+          <p className="text-sm leading-6">{t("marketing.copyright")}</p>
         </div>
-        <div className="space-y-2 text-sm">
-          <p className="font-medium">{t("marketing.product")}</p>
+        <FooterColumn title={t("marketing.product")}>
           {footerProductLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="block text-forest-foreground/80 hover:text-forest-foreground">
+            <FooterLink key={link.href} href={link.href}>
               {marketingLabel(link.href, link.label, t)}
-            </Link>
+            </FooterLink>
           ))}
           {signedIn ? (
-            <Link href="/societies" className="block text-forest-foreground/80 hover:text-forest-foreground">
-              {t("marketing.openApp")}
-            </Link>
+            <FooterLink href="/societies">{t("marketing.openApp")}</FooterLink>
           ) : (
-            <Link href="/sign-in" className="block text-forest-foreground/80 hover:text-forest-foreground">
-              {t("marketing.login")}
-            </Link>
+            <FooterLink href="/sign-in">{t("marketing.login")}</FooterLink>
           )}
+        </FooterColumn>
+        <div className="space-y-8">
+          <FooterColumn title={t("marketing.company")}>
+            {footerCompanyLinks.map((link) => (
+              <FooterLink key={link.href} href={link.href}>
+                {marketingLabel(link.href, link.label, t)}
+              </FooterLink>
+            ))}
+          </FooterColumn>
+          <FooterColumn title={t("marketing.support")}>
+            {footerSupportLinks.map((link) => (
+              <FooterLink key={link.href} href={link.href}>
+                {marketingLabel(link.href, link.label, t)}
+              </FooterLink>
+            ))}
+          </FooterColumn>
         </div>
-        <div className="space-y-2 text-sm">
-          <p className="font-medium">{t("marketing.legal")}</p>
+        <FooterColumn title={t("marketing.legal")}>
           {footerLegalLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="block text-forest-foreground/80 hover:text-forest-foreground">
+            <FooterLink key={link.href} href={link.href}>
               {marketingLabel(link.href, link.label, t)}
-            </Link>
+            </FooterLink>
           ))}
-          <OpenCookiePreferences className="block text-left text-forest-foreground/80 hover:text-forest-foreground">
+          <OpenCookiePreferences className="block text-left text-sm leading-6 hover:underline">
             {t("marketing.cookiePreferences")}
           </OpenCookiePreferences>
-        </div>
+        </FooterColumn>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="space-y-2 text-sm leading-6">
+      <p className="font-semibold">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+function FooterLink({ href, children }: { href: string; children: string }) {
+  return (
+    <Link href={href} className="block hover:underline">
+      {children}
+    </Link>
   );
 }
 

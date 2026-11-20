@@ -26,8 +26,28 @@ export type Membership = {
   role: "SOCIETY_ADMIN" | "RESIDENT_USER";
   status: "INVITED" | "ACTIVE" | "SUSPENDED" | "REMOVED";
   primaryUnitId: string | null;
+  invitedAt?: string | null;
+  invitationExpiresAt?: string | null;
+  invitationState?: "PENDING" | "EXPIRED" | "ACTIVE" | "SUSPENDED" | "REMOVED";
   createdAt: string;
   updatedAt: string;
+};
+
+export type Page<T> = {
+  items: T[];
+  page: number;
+  limit: number;
+  total: number;
+  invitationTtlDays?: number;
+};
+
+export type ListQuery = {
+  page?: number;
+  limit?: number;
+  q?: string;
+  buildingId?: string;
+  status?: string;
+  role?: string;
 };
 
 export type CreateBuildingInput = {
@@ -59,4 +79,5 @@ export type UpdateMembershipInput = {
   role?: "SOCIETY_ADMIN" | "RESIDENT_USER";
   status?: "INVITED" | "ACTIVE" | "SUSPENDED" | "REMOVED";
   primaryUnitId?: string | null;
+  reissue?: boolean;
 };

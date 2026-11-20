@@ -9,6 +9,7 @@ import { controlClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { Field } from "@/features/auth/components/field";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
 import {
   fetchMaintenanceConfigs,
@@ -24,12 +25,14 @@ type GenerateBillsPanelProps = {
 };
 
 export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
+  const { t } = useI18n();
   const now = useMemo(() => new Date(), []);
   const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [preview, setPreview] = useState<GenerateBillsResult | null>(null);
   const [generated, setGenerated] = useState<GenerateBillsResult | null>(null);
+  const [configId, setConfigId] = useState("");
 
   const configsQuery = useQuery({
     queryKey: ["maintenance-configs", societyId],
@@ -45,6 +48,10 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
   const activeConfigs = (configsQuery.data ?? []).filter(
     (config) => config.status === "ACTIVE",
   );
+  const selectedConfigId =
+    configId && activeConfigs.some((config) => config.id === configId)
+      ? configId
+      : (activeConfigs[0]?.id ?? "");
 
   function run(
     mode: "preview" | "generate" | "publish",
@@ -153,7 +160,7 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Generate bills</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("work.generateBills")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Preview eligible units, generate draft invoices in a transaction, then
           publish for the billing period.
@@ -204,7 +211,8 @@ export function GenerateBillsPanel({ societyId }: GenerateBillsPanelProps) {
             id="configId"
             name="configId"
             className={controlClassName}
-            defaultValue={activeConfigs[0]?.id ?? ""}
+            value={selectedConfigId}
+            onChange={(event) => setConfigId(event.target.value)}
           >
             <option value="" disabled>
               Select configuration

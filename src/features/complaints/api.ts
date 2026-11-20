@@ -1,5 +1,6 @@
 import { getPublicConfig } from "@/config/public-env";
-import { ApiError, apiRequest } from "@/services/api-client";
+import { triggerBlobDownload } from "@/lib/download-blob";
+import { ApiError, apiRequest, redirectIfSessionExpired } from "@/services/api-client";
 import type {
   Complaint,
   ComplaintAttachment,
@@ -124,16 +125,6 @@ export const reopenComplaint = (
   note?: string,
 ) => postAction(token, id, "reopen", { note });
 
-export async function fetchComplaintComments(
-  accessToken: string,
-  complaintId: string,
-): Promise<ComplaintComment[]> {
-  const response = await apiRequest<
-    DataEnvelope<{ items: ComplaintComment[] }>
-  >(`/api/v1/complaints/${complaintId}/comments`, { accessToken });
-  return response.data.items;
-}
-
 export async function addComplaintComment(
   accessToken: string,
   complaintId: string,
@@ -206,6 +197,7 @@ export async function downloadComplaintAttachment(
     },
   );
   if (!response.ok) {
+    redirectIfSessionExpired(response.status);
     let message = "Unable to download attachment";
     try {
       const parsed = (await response.json()) as { message?: string };
@@ -216,13 +208,5 @@ export async function downloadComplaintAttachment(
     throw new ApiError(message, response.status);
   }
   const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  try {
-    const anchor = document.createElement("a");
-    anchor.href = objectUrl;
-    anchor.download = filename || "attachment";
-    anchor.click();
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
+  triggerBlobDownload(blob, filename || "attachment");
 }

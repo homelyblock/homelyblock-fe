@@ -17,7 +17,7 @@ export function Logo({ href = "/", tone = "default" }: LogoProps) {
       <span
         aria-hidden
         className={`flex size-8 items-center justify-center rounded-md ${
-          inverse ? "bg-primary text-primary-foreground" : "bg-forest text-forest-foreground"
+          inverse ? "bg-forest-foreground text-forest" : "bg-forest text-forest-foreground"
         }`}
       >
         <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8">

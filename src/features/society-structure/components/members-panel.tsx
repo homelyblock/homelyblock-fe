@@ -6,10 +6,13 @@ import { preservedSubmit } from "@/lib/form-submit";
 import { useRef, useState } from "react";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { OptionSearch } from "@/components/ui/option-search";
+import { ListPager } from "@/components/ui/list-pager";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { controlClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
 import { getBrowserAccessToken } from "@/features/auth/browser-session";
+import { useI18n } from "@/i18n/provider";
 import { UserSearchSelector } from "@/features/societies/components/user-search-selector";
 import type { UserSearchItem } from "@/features/societies/types";
 import { ApiError } from "@/services/api-client";
@@ -28,6 +31,7 @@ type MembersPanelProps = {
 };
 
 export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
+  const { t, intl } = useI18n();
   const queryClient = useQueryClient();
   const { pending, guard } = useSubmitGuard();
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
@@ -43,28 +47,56 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
   } | null>(null);
   const [suspendError, setSuspendError] = useState<string | undefined>();
   const suspendLock = useRef(false);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
 
   const membersQuery = useQuery({
-    queryKey: ["members", societyId],
+    queryKey: ["members", societyId, page, submittedSearch],
+    enabled: canManage,
+    placeholderData: (previous) => previous,
+    queryFn: async () => {
+      const token = await getBrowserAccessToken();
+      if (!token) {
+        throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
+      }
+      return fetchMembers(token, societyId, {
+        page,
+        limit: 25,
+        ...(submittedSearch ? { q: submittedSearch } : {}),
+      });
+    },
+  });
+
+  const activeMembersQuery = useQuery({
+    queryKey: ["members", societyId, "active-admins"],
     enabled: canManage,
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchMembers(token, societyId);
+      return fetchMembers(token, societyId, {
+        status: "ACTIVE",
+        role: "SOCIETY_ADMIN",
+        limit: 100,
+      });
     },
   });
 
   const unitsQuery = useQuery({
-    queryKey: ["units", societyId, "all"],
+    queryKey: ["units", societyId, "options", unitSearch],
     enabled: canManage,
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchUnits(token, societyId);
+      return fetchUnits(token, societyId, {
+        limit: 100,
+        ...(unitSearch.trim() ? { q: unitSearch.trim() } : {}),
+      });
     },
   });
 
@@ -86,7 +118,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
       }
       setFieldErrors(next);
       setStatus("error");
-      setMessage("Check the highlighted fields.");
+        setMessage(t("common.checkFields"));
       return;
     }
 
@@ -107,9 +139,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
             : {}),
         });
         setStatus("success");
-        setMessage(
-          "Invitation created. They can see it after signing in, and they cannot open the society until you activate the membership.",
-        );
+        setMessage(t("feedback.invitationCreated"));
         setSelectedUser(null);
         form.reset();
         await queryClient.invalidateQueries({
@@ -120,7 +150,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         setMessage(
           error instanceof ApiError
             ? error.message
-            : "Unable to create membership.",
+            : t("directory.createFailed"),
         );
       }
     });
@@ -147,7 +177,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
       }
       setFieldErrors(next);
       setStatus("error");
-      setMessage("Check the highlighted fields.");
+        setMessage(t("common.checkFields"));
       return;
     }
 
@@ -176,7 +206,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
 
         await updateMembership(token, editing.id, payload);
         setStatus("success");
-        setMessage("Membership updated.");
+        setMessage(t("feedback.membershipUpdated"));
         setEditing(null);
         await queryClient.invalidateQueries({
           queryKey: ["members", societyId],
@@ -186,7 +216,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         setMessage(
           error instanceof ApiError
             ? error.message
-            : "Unable to update membership.",
+            : t("directory.updateFailed"),
         );
       }
     });
@@ -199,7 +229,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
   if (membersQuery.isLoading) {
     return (
       <p className="text-sm text-muted-foreground" role="status">
-        Loading members…
+        {t("members.loading")}
       </p>
     );
   }
@@ -212,16 +242,15 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
       >
         {membersQuery.error instanceof ApiError
           ? membersQuery.error.message
-          : "Unable to load members."}
+          : t("members.loadError")}
       </p>
     );
   }
 
-  const members = membersQuery.data ?? [];
-  const units = unitsQuery.data ?? [];
-  const activeAdminCount = members.filter(
-    (member) => member.role === "SOCIETY_ADMIN" && member.status === "ACTIVE",
-  ).length;
+  const members = membersQuery.data?.items ?? [];
+  const units = unitsQuery.data?.items ?? [];
+  const activeAdmins = activeMembersQuery.data?.items ?? [];
+  const activeAdminCount = activeMembersQuery.data?.total ?? activeAdmins.length;
   const protectsLastAdmin =
     editing !== null &&
     editing.role === "SOCIETY_ADMIN" &&
@@ -229,10 +258,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     activeAdminCount <= 1;
   const soleAdminId =
     activeAdminCount === 1
-      ? members.find(
-          (member) =>
-            member.role === "SOCIETY_ADMIN" && member.status === "ACTIVE",
-        )?.id
+      ? activeAdmins.find((member) => member.role === "SOCIETY_ADMIN")?.id
       : undefined;
 
   function confirmSuspend() {
@@ -240,7 +266,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
     if (!member || pending || suspendLock.current) return;
     suspendLock.current = true;
     setSuspendError(undefined);
-    guard(async () => {
+    const started = guard(async () => {
       try {
         const token = await getBrowserAccessToken();
         if (!token) {
@@ -254,9 +280,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         setSuspendTarget(null);
         setSuspendUpdate(null);
         setStatus("success");
-        setMessage(
-          `${member.displayName} is suspended and can no longer open this society.`,
-        );
+        setMessage(t("directory.suspended", { name: member.displayName }));
         setEditing(null);
         await queryClient.invalidateQueries({
           queryKey: ["members", societyId],
@@ -265,12 +289,13 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         setSuspendError(
           error instanceof ApiError
             ? error.message
-            : "Unable to suspend this membership.",
+            : t("directory.suspendFailed"),
         );
       } finally {
         suspendLock.current = false;
       }
     });
+    if (!started) suspendLock.current = false;
   }
 
   function changeStatus(memberId: string, status: "ACTIVE") {
@@ -283,9 +308,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         }
         await updateMembership(token, memberId, { status });
         setStatus("success");
-        setMessage(
-          "Membership activated. They can open the society the next time they sign in.",
-        );
+        setMessage(t("directory.activated"));
         setEditing(null);
         await queryClient.invalidateQueries({
           queryKey: ["members", societyId],
@@ -295,19 +318,89 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         setMessage(
           error instanceof ApiError
             ? error.message
-            : "Unable to update membership.",
+            : t("directory.updateFailed"),
         );
       }
     });
+  }
+
+  function reissue(memberId: string) {
+    guard(async () => {
+      try {
+        const token = await getBrowserAccessToken();
+        if (!token) {
+          throw new ApiError(t("common.signInRequired"), 401, "UNAUTHORIZED");
+        }
+        await updateMembership(token, memberId, { reissue: true });
+        setStatus("success");
+        setMessage(t("directory.reissued"));
+        await queryClient.invalidateQueries({ queryKey: ["members", societyId] });
+      } catch (error) {
+        setStatus("error");
+        setMessage(
+          error instanceof ApiError ? error.message : t("directory.updateFailed"),
+        );
+      }
+    });
+  }
+
+  function revoke(memberId: string) {
+    guard(async () => {
+      try {
+        const token = await getBrowserAccessToken();
+        if (!token) {
+          throw new ApiError(t("common.signInRequired"), 401, "UNAUTHORIZED");
+        }
+        await updateMembership(token, memberId, { status: "REMOVED" });
+        setStatus("success");
+        setMessage(t("directory.revoked"));
+        setEditing(null);
+        await queryClient.invalidateQueries({ queryKey: ["members", societyId] });
+      } catch (error) {
+        setStatus("error");
+        setMessage(
+          error instanceof ApiError ? error.message : t("directory.updateFailed"),
+        );
+      }
+    });
+  }
+
+  function inviteDate(value?: string | null) {
+    if (!value) return "";
+    return new Intl.DateTimeFormat(intl, { dateStyle: "medium" }).format(
+      new Date(value),
+    );
   }
 
   return (
     <div className="space-y-6">
       <AuthStatus status={status} message={message} />
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">Members</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("members.title")}</h2>
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setPage(1);
+            setSubmittedSearch(search.trim());
+          }}
+        >
+          <label className="sr-only" htmlFor="member-list-search">
+            {t("directory.searchMembers")}
+          </label>
+          <input
+            id="member-list-search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("directory.searchMembers")}
+            className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card px-3 text-sm"
+          />
+          <Button type="submit" variant="outline">
+            {t("directory.search")}
+          </Button>
+        </form>
         {members.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No memberships yet.</p>
+          <p className="text-sm text-muted-foreground">{t("members.empty")}</p>
         ) : (
           <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {members.map((member) => (
@@ -322,19 +415,52 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                   <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     {member.email ? <span>{member.email}</span> : null}
                     <StatusBadge value={member.role} />
-                    <StatusBadge value={member.status} />
+                    <StatusBadge
+                      value={
+                        member.invitationState === "EXPIRED"
+                          ? "EXPIRED"
+                          : member.status
+                      }
+                    />
+                    {member.invitationState === "EXPIRED" ? (
+                      <span>{t("directory.expiredOn", { date: inviteDate(member.invitationExpiresAt) })}</span>
+                    ) : null}
+                    {member.invitationState === "PENDING" ? (
+                      <span>{t("directory.expiresOn", { date: inviteDate(member.invitationExpiresAt) })}</span>
+                    ) : null}
                   </p>
                 </div>
                 {canManage ? (
                   <div className="flex flex-wrap justify-end gap-2">
-                    {member.status === "INVITED" ? (
+                    {member.invitationState === "PENDING" ? (
                       <Button
                         type="button"
                         size="sm"
                         disabled={pending}
                         onClick={() => changeStatus(member.id, "ACTIVE")}
                       >
-                        Activate
+                        {t("members.activate")}
+                      </Button>
+                    ) : null}
+                    {member.invitationState === "EXPIRED" || member.status === "REMOVED" ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => reissue(member.id)}
+                      >
+                        {t("directory.reissue")}
+                      </Button>
+                    ) : null}
+                    {member.invitationState === "PENDING" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => revoke(member.id)}
+                      >
+                        {t("directory.revoke")}
                       </Button>
                     ) : null}
                     {member.status === "SUSPENDED" || member.status === "REMOVED" ? (
@@ -344,7 +470,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                         disabled={pending}
                         onClick={() => changeStatus(member.id, "ACTIVE")}
                       >
-                        Restore access
+                        {t("members.restore")}
                       </Button>
                     ) : null}
                     {member.status === "ACTIVE" && member.id !== soleAdminId ? (
@@ -358,7 +484,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                           setSuspendTarget(member);
                         }}
                       >
-                        Suspend
+                        {t("members.suspend")}
                       </Button>
                     ) : null}
                     <Button
@@ -372,7 +498,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                         setMessage(undefined);
                       }}
                     >
-                      Edit
+                      {t("common.edit")}
                     </Button>
                   </div>
                 ) : null}
@@ -380,6 +506,13 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
             ))}
           </ul>
         )}
+        <ListPager
+          page={page}
+          pageSize={membersQuery.data?.limit ?? 25}
+          total={membersQuery.data?.total ?? 0}
+          disabled={membersQuery.isFetching}
+          onPage={setPage}
+        />
       </div>
 
       {canManage && !editing ? (
@@ -389,19 +522,17 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         >
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              Add member
+              {t("members.add")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Search members of this society by name or email. To invite
-              someone who already has an account but no society, enter their
-              full email address. The membership starts as invited and does
-              not grant access until you activate it. Platform roles cannot
-              be assigned here.
+              {t("directory.inviteHelp", {
+                days: membersQuery.data?.invitationTtlDays ?? 14,
+              })}
             </p>
           </div>
 
           <UserSearchSelector
-            label="Registered user"
+            label={t("forms.registeredUser")}
             inputId="member-search"
             societyId={societyId}
             canSearch={canManage}
@@ -415,7 +546,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
               htmlFor="member-role"
               className="block text-sm font-medium text-foreground"
             >
-              Role
+              {t("members.role")}
             </label>
             <select
               id="member-role"
@@ -423,11 +554,11 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
               defaultValue="RESIDENT_USER"
               className={controlClassName}
             >
-              <option value="RESIDENT_USER">Resident</option>
-              <option value="SOCIETY_ADMIN">Society admin</option>
+              <option value="RESIDENT_USER">{t("members.resident")}</option>
+              <option value="SOCIETY_ADMIN">{t("members.admin")}</option>
             </select>
             <p className="text-xs text-muted-foreground">
-              Either role is invited first. Activate it from the list when the person should be able to open the society.
+              {t("directory.roleHint")}
             </p>
           </div>
 
@@ -436,15 +567,23 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
               htmlFor="member-unit"
               className="block text-sm font-medium text-foreground"
             >
-              Primary unit (optional)
+              {t("directory.primaryUnitOptional")}
             </label>
+            <OptionSearch
+              id="member-unit-search"
+              label={t("work.findUnit")}
+              value={unitSearch}
+              onChange={setUnitSearch}
+              total={unitsQuery.data?.total}
+              shown={units.length}
+            />
             <select
               id="member-unit"
               name="primaryUnitId"
               defaultValue=""
               className={controlClassName}
             >
-              <option value="">None</option>
+              <option value="">{t("directory.none")}</option>
               {units.map((unit) => (
                 <option key={unit.id} value={unit.id}>
                   {unit.unitNumber}
@@ -454,7 +593,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
           </div>
 
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving…" : "Create invitation"}
+            {pending ? t("members.inviting") : t("members.invite")}
           </Button>
         </form>
       ) : null}
@@ -467,7 +606,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         >
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              Edit membership
+              {t("directory.editMembership")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {editing.displayName}
@@ -475,9 +614,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
             </p>
             {protectsLastAdmin ? (
               <p className="mt-2 text-sm text-muted-foreground">
-                This society must keep at least one active society
-                administrator. Add another active administrator before changing
-                this role or status. The primary flat can still be updated.
+                {t("directory.lastAdmin")}
               </p>
             ) : null}
           </div>
@@ -488,7 +625,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                 htmlFor="edit-member-role"
                 className="block text-sm font-medium text-foreground"
               >
-                Role
+                {t("members.role")}
               </label>
               <select
                 id="edit-member-role"
@@ -497,9 +634,9 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                 className={controlClassName}
               >
                 <option value="RESIDENT_USER" disabled={protectsLastAdmin}>
-                  RESIDENT_USER
+                  {t("members.resident")}
                 </option>
-                <option value="SOCIETY_ADMIN">SOCIETY_ADMIN</option>
+                <option value="SOCIETY_ADMIN">{t("members.admin")}</option>
               </select>
             </div>
             <div className="space-y-1.5">
@@ -507,7 +644,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                 htmlFor="edit-member-status"
                 className="block text-sm font-medium text-foreground"
               >
-                Status
+                {t("directory.status")}
               </label>
               <select
                 id="edit-member-status"
@@ -516,14 +653,14 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
                 className={controlClassName}
               >
                 <option value="INVITED" disabled={protectsLastAdmin}>
-                  INVITED
+                  {t("status.INVITED")}
                 </option>
-                <option value="ACTIVE">ACTIVE</option>
+                <option value="ACTIVE">{t("status.ACTIVE")}</option>
                 <option value="SUSPENDED" disabled={protectsLastAdmin}>
-                  SUSPENDED
+                  {t("status.SUSPENDED")}
                 </option>
                 <option value="REMOVED" disabled={protectsLastAdmin}>
-                  REMOVED
+                  {t("status.REMOVED")}
                 </option>
               </select>
             </div>
@@ -534,15 +671,23 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
               htmlFor="edit-member-unit"
               className="block text-sm font-medium text-foreground"
             >
-              Primary unit
+              {t("directory.primaryUnit")}
             </label>
+            <OptionSearch
+              id="edit-member-unit-search"
+              label={t("work.findUnit")}
+              value={unitSearch}
+              onChange={setUnitSearch}
+              total={unitsQuery.data?.total}
+              shown={units.length}
+            />
             <select
               id="edit-member-unit"
               name="primaryUnitId"
               defaultValue={editing.primaryUnitId ?? ""}
               className={controlClassName}
             >
-              <option value="">None</option>
+              <option value="">{t("directory.none")}</option>
               {units.map((unit) => (
                 <option key={unit.id} value={unit.id}>
                   {unit.unitNumber}
@@ -553,7 +698,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
 
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving…" : "Update membership"}
+              {pending ? t("common.saving") : t("directory.updateMembership")}
             </Button>
             <Button
               type="button"
@@ -561,7 +706,7 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
               disabled={pending}
               onClick={() => setEditing(null)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>
@@ -570,15 +715,17 @@ export function MembersPanel({ societyId, canManage }: MembersPanelProps) {
         open={suspendTarget !== null}
         title={
           suspendTarget
-            ? `Suspend ${suspendTarget.displayName}?`
-            : "Suspend membership?"
+            ? t("directory.suspendTitle", { name: suspendTarget.displayName })
+            : t("directory.suspendConfirm")
         }
         description={
           suspendTarget
-            ? `${suspendTarget.email ? `${suspendTarget.email} loses` : "This person loses"} access to this society until an administrator restores the membership. The account and its history stay in place.`
+            ? t("directory.suspendBody", {
+                who: suspendTarget.email ?? suspendTarget.displayName,
+              })
             : undefined
         }
-        confirmLabel="Suspend membership"
+        confirmLabel={t("directory.suspendConfirm")}
         pending={pending}
         error={suspendError}
         onCancel={() => {

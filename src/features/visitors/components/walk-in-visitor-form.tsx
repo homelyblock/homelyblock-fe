@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { preservedSubmit } from "@/lib/form-submit";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { OptionSearch } from "@/components/ui/option-search";
 import { Button } from "@/components/ui/button";
 import { controlClassName, textareaClassName } from "@/components/ui/control";
 import { AuthStatus } from "@/features/auth/components/auth-status";
@@ -28,15 +29,19 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const [message, setMessage] = useState<string | undefined>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [unitSearch, setUnitSearch] = useState("");
 
   const unitsQuery = useQuery({
-    queryKey: ["units", societyId, "all"],
+    queryKey: ["units", societyId, "all", unitSearch],
     queryFn: async () => {
       const token = await getBrowserAccessToken();
       if (!token) {
         throw new ApiError("Sign in required", 401, "UNAUTHORIZED");
       }
-      return fetchUnits(token, societyId);
+      return fetchUnits(token, societyId, {
+        limit: 100,
+        ...(unitSearch.trim() ? { q: unitSearch.trim() } : {}),
+      });
     },
   });
 
@@ -119,7 +124,7 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
           Register walk-in visitor
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Walk-ins stay pending until the unit resident approves or rejects.
+          {t("work.walkInHelp")}
         </p>
       </div>
 
@@ -128,8 +133,16 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
           htmlFor="walkin-unit"
           className="block text-sm font-medium text-foreground"
         >
-          Unit
+          {t("work.unit")}
         </label>
+        <OptionSearch
+          id="walkin-unit-search"
+          label={t("work.findUnit")}
+          value={unitSearch}
+          onChange={setUnitSearch}
+          total={unitsQuery.data?.total}
+          shown={unitsQuery.data?.items.length}
+        />
         <select
           id="walkin-unit"
           name="unitId"
@@ -137,14 +150,21 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
           className={controlClassName}
         >
           <option value="" disabled>
-            Select a unit
+            {t("work.selectUnit")}
           </option>
-          {(unitsQuery.data ?? []).map((unit) => (
+          {(unitsQuery.data?.items ?? []).map((unit) => (
             <option key={unit.id} value={unit.id}>
               {unit.unitNumber}
             </option>
           ))}
         </select>
+        {unitsQuery.isError ? (
+          <p className="text-sm text-destructive" role="alert">
+            {unitsQuery.error instanceof ApiError
+              ? unitsQuery.error.message
+              : "Unable to load units."}
+          </p>
+        ) : null}
         {fieldErrors.unitId?.length ? (
           <p className="text-sm text-destructive">{fieldErrors.unitId[0]}</p>
         ) : null}
@@ -197,7 +217,7 @@ export function WalkInVisitorForm({ societyId }: WalkInVisitorFormProps) {
       </div>
 
       <AuthStatus status={status} message={message} />
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending || unitsQuery.isError}>
         {pending ? "Saving…" : "Register walk-in"}
       </Button>
     </form>
