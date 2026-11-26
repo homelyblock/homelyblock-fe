@@ -21,10 +21,15 @@ export const PUBLIC_PATHS = new Set([
   "/unavailable",
   "/auth/callback",
   "/auth/update-password",
+  // PWA assets must stay reachable without a session.
+  "/manifest.webmanifest",
+  "/sw.js",
+  "/offline.html",
 ]);
 
 export function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
   if (pathname.startsWith("/auth/")) return true;
+  if (pathname.startsWith("/icons/")) return true;
   return false;
 }

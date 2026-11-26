@@ -57,6 +57,19 @@ export const messages = {
     openNav: "नेव्हिगेशन उघडा",
     closeNav: "नेव्हिगेशन बंद करा",
   },
+  pwa: {
+    install: "अ‍ॅप इन्स्टॉल करा",
+    installTitle: "HomelyBlock इन्स्टॉल करा",
+    installBody:
+      "जलद प्रवेशासाठी HomelyBlock होम स्क्रीनवर जोडा. थेट सोसायटी डेटाला इंटरनेट लागतेच.",
+    notNow: "आता नको",
+    updateAvailable: "HomelyBlock ची नवीन आवृत्ती तयार आहे.",
+    updateNow: "अपडेट करा",
+    offlineBanner: "तुम्ही ऑफलाइन आहात. थेट सोसायटी डेटा उपलब्ध नाही.",
+    iosTitle: "होम स्क्रीनवर जोडा",
+    iosBody:
+      "Safari मध्ये Share टॅप करा, नंतर Add to Home Screen निवडा. HomelyBlock ब्राउझर पट्टीशिवाय अ‍ॅपसारखे उघडते.",
+  },
   theme: {
     label: "थीम",
     light: "फिकट",

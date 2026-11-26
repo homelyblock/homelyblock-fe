@@ -44,7 +44,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
           applyTheme(next);
           window.dispatchEvent(new Event(THEME_EVENT));
         }}
-        className="h-9 max-w-28 rounded-lg border border-border bg-card px-2 text-sm font-medium text-foreground"
+        className="h-9 max-w-28 rounded-lg border border-border bg-muted px-2 text-sm font-medium text-foreground"
       >
         <option value="system">{t("theme.system")}</option>
         <option value="light">{t("theme.light")}</option>

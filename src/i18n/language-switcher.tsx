@@ -13,7 +13,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
         aria-label={t("language.label")}
         value={locale}
         onChange={(event) => setLocale(event.target.value as Locale)}
-        className="h-9 max-w-28 rounded-lg border border-border bg-card px-2 text-sm font-medium text-foreground"
+        className="h-9 max-w-28 rounded-lg border border-border bg-muted px-2 text-sm font-medium text-foreground"
       >
         {LOCALES.map((item) => (
           <option key={item} value={item}>

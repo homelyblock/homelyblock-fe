@@ -27,6 +27,10 @@ describe("isPublicPath", () => {
       "/unavailable",
       "/auth/callback",
       "/auth/update-password",
+      "/manifest.webmanifest",
+      "/sw.js",
+      "/offline.html",
+      "/icons/icon-192.png",
     ]) {
       assert.equal(isPublicPath(path), true, path);
     }

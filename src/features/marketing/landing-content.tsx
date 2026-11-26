@@ -20,7 +20,7 @@ import { useI18n } from "@/i18n/provider";
 const primaryLink =
   "inline-flex h-12 items-center justify-center rounded-lg bg-primary px-5 text-base font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]";
 const secondaryLink =
-  "inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card px-5 text-base font-medium text-foreground hover:bg-accent";
+  "inline-flex h-12 items-center justify-center rounded-lg border border-border bg-muted px-5 text-base font-medium text-foreground hover:bg-accent";
 const textLink = "inline-flex text-base font-medium text-accent-strong underline-offset-4 hover:underline";
 
 const PREVIEW_NAV: { key: string; icon: LucideIcon }[] = [

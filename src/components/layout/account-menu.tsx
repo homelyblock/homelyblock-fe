@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
+import { usePwaOptional } from "@/features/pwa/pwa-provider";
 import { useI18n } from "@/i18n/provider";
 
 type AccountMenuProps = {
@@ -19,6 +20,7 @@ export function AccountMenu({
 }: AccountMenuProps) {
   const pathname = usePathname();
   const { t } = useI18n();
+  const pwa = usePwaOptional();
   const rootRef = useRef<HTMLDivElement>(null);
   const [openPath, setOpenPath] = useState<string | null>(null);
   const open = openPath === pathname;
@@ -45,7 +47,7 @@ export function AccountMenu({
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="flex h-9 max-w-48 items-center truncate rounded-lg border border-border px-3 text-sm font-medium"
+        className="flex h-9 max-w-48 items-center truncate rounded-lg border border-border bg-muted px-3 text-sm font-medium text-foreground"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpenPath(open ? null : pathname)}
@@ -76,6 +78,19 @@ export function AccountMenu({
           >
             {t("nav.profile")}
           </Link>
+          {pwa?.canInstall ? (
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full rounded-md px-2 py-2 text-left text-sm hover:bg-muted"
+              onClick={() => {
+                setOpenPath(null);
+                void pwa.install();
+              }}
+            >
+              {t("pwa.install")}
+            </button>
+          ) : null}
           <div className="mt-1 border-t border-border pt-2">
             <SignOutButton returnTo={signOutReturnTo} />
           </div>

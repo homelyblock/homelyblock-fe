@@ -56,6 +56,18 @@ export const messages = {
     openNav: "Open navigation",
     closeNav: "Close navigation",
   },
+  pwa: {
+    install: "Install app",
+    installTitle: "Install HomelyBlock",
+    installBody: "Add HomelyBlock to your home screen for quicker access. Live society data still needs an internet connection.",
+    notNow: "Not now",
+    updateAvailable: "A new version of HomelyBlock is ready.",
+    updateNow: "Update",
+    offlineBanner: "You are offline. Live society data is unavailable.",
+    iosTitle: "Add to Home Screen",
+    iosBody:
+      "In Safari, tap Share, then Add to Home Screen. HomelyBlock opens like an app, without browser chrome.",
+  },
   theme: {
     label: "Theme",
     light: "Light",

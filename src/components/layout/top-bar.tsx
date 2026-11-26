@@ -18,7 +18,7 @@ export function TopBar({
   const label = displayName || email || "Account";
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/80 bg-card/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border/80 bg-card pt-[env(safe-area-inset-top)] backdrop-blur-md supports-[backdrop-filter]:bg-card/95">
       <div className="flex h-14 items-center gap-4 px-4 sm:px-6">
         <AppLogo />
         <div className="hidden min-w-0 flex-1 md:block">

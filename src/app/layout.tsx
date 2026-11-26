@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono, Noto_Sans_Devanagari } from "next/font/google";
 import { AppProviders } from "@/components/providers";
@@ -26,19 +26,49 @@ const notoDevanagari = Noto_Sans_Devanagari({
 
 const siteUrl = getSiteUrl();
 
+const appDescription =
+  "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.";
+
 export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: siteUrl } : {}),
   title: "HomelyBlock",
-  description:
-    "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",
+  description: appDescription,
+  applicationName: "HomelyBlock",
+  appleWebApp: {
+    capable: true,
+    title: "HomelyBlock",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     title: "HomelyBlock",
-    description:
-      "Manage residents, maintenance, visitors, complaints and everyday society operations in one simple platform.",
+    description: appDescription,
     siteName: "HomelyBlock",
     locale: "en_IN",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#244c3a" },
+    { media: "(prefers-color-scheme: dark)", color: "#121916" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

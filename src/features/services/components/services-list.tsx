@@ -161,7 +161,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
                   <div className="flex flex-wrap gap-2 text-sm">
                     <a
                       href={telHref(provider.phone)}
-                      className="rounded-lg border border-border px-2 py-1 text-foreground hover:bg-muted/60"
+                      className="rounded-lg border border-border bg-muted px-2 py-1 text-foreground hover:bg-accent"
                     >
                       Call
                     </a>
@@ -170,7 +170,7 @@ export function ServicesList({ societyId, canManage }: ServicesListProps) {
                         href={whatsapp}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-lg border border-border px-2 py-1 text-foreground hover:bg-muted/60"
+                        className="rounded-lg border border-border bg-muted px-2 py-1 text-foreground hover:bg-accent"
                       >
                         WhatsApp
                       </a>

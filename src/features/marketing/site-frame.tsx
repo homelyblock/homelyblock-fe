@@ -49,7 +49,7 @@ export function SiteHeader({ signedIn }: SiteHeaderProps) {
   const { t } = useI18n();
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-card pt-[env(safe-area-inset-top)] backdrop-blur-md supports-[backdrop-filter]:bg-card/95">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo href="/" />
         <nav aria-label="Primary" className="hidden items-center gap-5 text-[15px] lg:flex">

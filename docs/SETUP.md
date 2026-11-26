@@ -66,7 +66,7 @@ npm --prefix homelyblock-fe run dev
 - Application: http://localhost:3000
 - API liveness: http://localhost:4000/api/v1/health
 - API readiness: http://localhost:4000/api/v1/health/ready
-- Swagger: http://localhost:4000/api/docs while `NODE_ENV` is not `production`
+- Swagger: http://localhost:4000/api/docs in development. In production, set `SWAGGER_ENABLED=true` on the API and redeploy. The docs are then at `https://<api-host>/api/docs`. Set it back to `false` when you are finished. The page lists routes. It does not bypass sign-in.
 
 ## First platform owner
 
@@ -92,14 +92,16 @@ Leave `TRUSTED_PROXY_HOPS` at `0` unless every request reaches the API through a
 
 Take a backup before migrating a database that already has society data.
 
-From `homelyblock-be`, with `DATABASE_URL` set to that database’s direct connection string (not the transaction pooler):
+Production migrations run when the API starts, not on every Git commit. `npm run start:prod` runs `prisma migrate deploy` and then starts the server. On Render, set the start command to `npm run start:prod`. `DATABASE_URL` on that service must be the Supabase direct connection (port 5432). Do not put the password in the repository.
+
+A manual run from `homelyblock-be` uses the same command. Export the direct URL in the shell for that one command. If the output says `localhost:5434`, it updated the laptop database and did not touch production.
 
 ```bash
 npm run prisma:migrate:status
 npm run prisma:migrate:deploy
 ```
 
-This applies only migrations that are not yet recorded. The current set includes `20261119143000_integrity_keys` and `20261120103000_society_scope_and_invitations`. If existing rows cross societies, emails differ only by case, or two active household members share a name, the migration stops and does not rewrite the data.
+`migrate deploy` applies only migrations that are not yet recorded. If existing rows cross societies, emails differ only by case, or two active household members share a name, the migration stops and does not rewrite the data.
 
 Do not run `scripts/fresh-migrate-check.mjs` against a shared or production database. That script creates a local database and then drops it. Do not run `prisma migrate dev` or `prisma migrate reset` against production.
 

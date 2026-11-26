@@ -31,7 +31,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
     <div className="lg:hidden">
       <button
         type="button"
-        className="inline-flex h-11 items-center rounded-lg border border-border bg-card px-3 text-sm font-medium"
+        className="inline-flex h-11 items-center rounded-lg border border-border bg-muted px-3 text-sm font-medium text-foreground"
         aria-expanded={open}
         aria-controls="mobile-nav"
         aria-label={open ? t("marketing.closeMenu") : t("marketing.openMenu")}
@@ -86,7 +86,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
                 <div className="grid gap-2">
                   <Link
                     href="/sign-in"
-                    className="inline-flex h-12 items-center justify-center rounded-lg border border-border text-base font-medium hover:bg-accent"
+                    className="inline-flex h-12 items-center justify-center rounded-lg border border-border bg-muted text-base font-medium text-foreground hover:bg-accent"
                     onClick={() => setOpen(false)}
                   >
                     {t("marketing.login")}
