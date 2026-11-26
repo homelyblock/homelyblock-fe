@@ -33,7 +33,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
   const choice = useSyncExternalStore(subscribeTheme, currentTheme, () => "system" as ThemeChoice);
 
   return (
-    <label className={["items-center", className || "inline-flex"].join(" ")}>
+    <label className="inline-flex w-full min-w-0 items-center">
       <span className="sr-only">{t("theme.label")}</span>
       <select
         aria-label={t("theme.label")}
@@ -44,7 +44,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
           applyTheme(next);
           window.dispatchEvent(new Event(THEME_EVENT));
         }}
-        className="h-9 max-w-28 rounded-lg border border-border bg-muted px-2 text-sm font-medium text-foreground"
+        className={`h-11 max-w-28 rounded-lg border border-border bg-muted px-2 text-sm font-medium text-foreground ${className}`}
       >
         <option value="system">{t("theme.system")}</option>
         <option value="light">{t("theme.light")}</option>

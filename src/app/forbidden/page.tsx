@@ -7,9 +7,9 @@ export const instant = false;
 export default function ForbiddenPage() {
   return (
     <StatusPage
-      code="403"
-      title="You do not have access"
-      description="This area is limited to another role. The server enforces that restriction even if a link is opened directly."
+      code="No access"
+      title="You don’t have access to this page"
+      description="Ask a society administrator if you need permission, or go back to your societies."
     >
       <Link href="/societies" className={buttonVariants()}>
         Go to societies

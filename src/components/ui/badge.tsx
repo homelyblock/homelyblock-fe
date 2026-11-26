@@ -6,10 +6,13 @@ import { formatStatus, statusTone, type StatusTone } from "./status-tone";
 
 const tones: Record<StatusTone, string> = {
   neutral: "bg-muted text-foreground",
-  success: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning",
-  danger: "bg-destructive/10 text-destructive",
-  info: "bg-info/10 text-info",
+  success:
+    "bg-[color-mix(in_srgb,var(--theme-success)_12%,var(--theme-surface))] text-foreground",
+  warning:
+    "bg-[color-mix(in_srgb,var(--theme-warning)_14%,var(--theme-surface))] text-foreground",
+  danger:
+    "bg-[color-mix(in_srgb,var(--theme-danger)_12%,var(--theme-surface))] text-foreground",
+  info: "bg-[color-mix(in_srgb,var(--theme-info)_12%,var(--theme-surface))] text-foreground",
 };
 
 type StatusBadgeProps = {

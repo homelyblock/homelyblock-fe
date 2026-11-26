@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { usePwaOptional } from "@/features/pwa/pwa-provider";
 import { useI18n } from "@/i18n/provider";
+import { userInitials } from "@/lib/user-initials";
 
 type AccountMenuProps = {
   label: string;
@@ -24,6 +25,7 @@ export function AccountMenu({
   const rootRef = useRef<HTMLDivElement>(null);
   const [openPath, setOpenPath] = useState<string | null>(null);
   const open = openPath === pathname;
+  const initials = userInitials(label === email ? null : label, email);
 
   useEffect(() => {
     if (!open) return;
@@ -47,25 +49,32 @@ export function AccountMenu({
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="flex h-9 max-w-48 items-center truncate rounded-lg border border-border bg-muted px-3 text-sm font-medium text-foreground"
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-xs font-semibold tracking-wide text-foreground hover:bg-accent"
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={label}
+        title={label}
         onClick={() => setOpenPath(open ? null : pathname)}
       >
-        {label}
+        <span aria-hidden className="leading-none">
+          {initials}
+        </span>
       </button>
       {open ? (
         <div
           role="menu"
-          className="motion-rise absolute right-0 z-40 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl"
+          className="motion-rise absolute right-0 z-40 mt-2 w-64 rounded-2xl border border-border bg-card p-2 text-card-foreground shadow-xl"
         >
-          {email ? (
-            <p className="truncate px-2 py-1.5 text-xs text-muted-foreground">{email}</p>
-          ) : null}
+          <div className="border-b border-border px-2 pb-2">
+            <p className="truncate text-sm font-medium text-foreground">{label}</p>
+            {email ? (
+              <p className="truncate text-xs text-muted-foreground">{email}</p>
+            ) : null}
+          </div>
           <Link
             href="/societies"
             role="menuitem"
-            className="block rounded-md px-2 py-2 text-sm hover:bg-muted"
+            className="mt-1 block rounded-md px-2 py-2 text-sm hover:bg-muted"
             onClick={() => setOpenPath(null)}
           >
             {t("nav.societies")}

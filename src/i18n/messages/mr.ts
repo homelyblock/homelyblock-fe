@@ -366,7 +366,7 @@ export const messages = {
     accessibility: "सुगमता",
     login: "लॉगिन",
     getStarted: "सुरुवात करा",
-    openApp: "अ‍ॅप उघडा",
+    openApp: "माझ्या सोसायट्या",
     openMenu: "मेनू उघडा",
     closeMenu: "मेनू बंद करा",
     menu: "मेनू",

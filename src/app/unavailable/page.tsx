@@ -11,9 +11,9 @@ export const instant = false;
 export default function UnavailablePage() {
   return (
     <StatusPage
-      code="Unavailable"
-      title="HomelyBlock is temporarily unavailable"
-      description="The application could not be reached. Wait a moment and try again. If you operate this deployment, check the API health endpoint and database connection."
+      code="Temporarily unavailable"
+      title="We can’t reach HomelyBlock right now"
+      description="Please wait a moment and try again. Your data is safe."
     >
       <Link href="/" className={buttonVariants()}>
         Back to home

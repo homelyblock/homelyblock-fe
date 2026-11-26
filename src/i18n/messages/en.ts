@@ -364,7 +364,7 @@ export const messages = {
     accessibility: "Accessibility",
     login: "Login",
     getStarted: "Get started",
-    openApp: "Open app",
+    openApp: "My societies",
     openMenu: "Open menu",
     closeMenu: "Close menu",
     menu: "Menu",

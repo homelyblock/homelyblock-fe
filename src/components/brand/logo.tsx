@@ -10,13 +10,13 @@ export function Logo({ href = "/", tone = "default" }: LogoProps) {
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight ${
+      className={`inline-flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight ${
         inverse ? "text-forest-foreground" : "text-foreground"
       }`}
     >
       <span
         aria-hidden
-        className={`flex size-8 items-center justify-center rounded-md ${
+        className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
           inverse ? "bg-forest-foreground text-forest" : "bg-forest text-forest-foreground"
         }`}
       >
@@ -24,7 +24,7 @@ export function Logo({ href = "/", tone = "default" }: LogoProps) {
           <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1Z" strokeLinejoin="round" />
         </svg>
       </span>
-      HomelyBlock
+      <span className="truncate max-[340px]:sr-only">HomelyBlock</span>
     </Link>
   );
 }

@@ -12,9 +12,9 @@ export default function AppError({
 }) {
   return (
     <StatusPage
-      code="Error"
-      title="Something went wrong"
-      description="The page could not be loaded. Try again, or return to your societies if the problem continues."
+      code="Something went wrong"
+      title="We couldn’t load this page"
+      description="Please try again. If it keeps happening, go back to your societies and continue from there."
     >
       <Button type="button" onClick={() => reset()}>
         Try again

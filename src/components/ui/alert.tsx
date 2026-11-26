@@ -5,10 +5,17 @@ type AlertProps = {
   children: ReactNode;
 };
 
+/**
+ * Calm notice styles: tinted surface + colored edge, readable foreground text.
+ * Avoid saturated “alarm” text that feels technical or harsh on mobile.
+ */
 const tones = {
-  error: "border-destructive/25 border-l-destructive bg-destructive/10 text-destructive",
-  warning: "border-warning/30 border-l-warning bg-warning/10 text-warning",
-  success: "border-success/30 border-l-success bg-success/10 text-success",
+  error:
+    "border-border border-l-[color:var(--theme-danger)] bg-[color-mix(in_srgb,var(--theme-danger)_9%,var(--theme-surface))] text-foreground",
+  warning:
+    "border-border border-l-[color:var(--theme-warning)] bg-[color-mix(in_srgb,var(--theme-warning)_10%,var(--theme-surface))] text-foreground",
+  success:
+    "border-border border-l-[color:var(--theme-success)] bg-[color-mix(in_srgb,var(--theme-success)_10%,var(--theme-surface))] text-foreground",
 };
 
 export function Alert({ tone = "error", children }: AlertProps) {

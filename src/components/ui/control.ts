@@ -17,4 +17,5 @@ export const fieldLabelClassName = "block text-sm font-medium text-foreground";
 
 export const fieldHintClassName = "text-sm leading-5 text-muted-foreground";
 
-export const fieldErrorClassName = "text-sm text-destructive";
+export const fieldErrorClassName =
+  "text-sm text-[color:var(--theme-danger)]";

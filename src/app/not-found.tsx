@@ -7,9 +7,9 @@ export const instant = false;
 export default function NotFound() {
   return (
     <StatusPage
-      code="404"
-      title="Page not found"
-      description="That address is not part of HomelyBlock. Check the link or return to your societies."
+      code="Not found"
+      title="This page isn’t here"
+      description="The link may be wrong or out of date. You can go home or open your societies."
     >
       <Link href="/" className={buttonVariants()}>
         Back to home

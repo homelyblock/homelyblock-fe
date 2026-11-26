@@ -30,6 +30,7 @@ import {
   type NavGroup,
   type SocietyNavKey,
 } from "@/features/shell/nav-items";
+import { SOCIETY_NAV_OPEN_EVENT } from "@/features/shell/society-nav-events";
 import { fetchSocieties } from "@/features/societies/api";
 import { useI18n } from "@/i18n/provider";
 import { ApiError } from "@/services/api-client";
@@ -97,6 +98,14 @@ export function SocietySidebar({
   const collapsed = useSyncExternalStore(subscribeSidebar, sidebarCollapsed, () => false);
 
   useEffect(() => {
+    function onOpenRequest() {
+      setOpenPath(pathname);
+    }
+    window.addEventListener(SOCIETY_NAV_OPEN_EVENT, onOpenRequest);
+    return () => window.removeEventListener(SOCIETY_NAV_OPEN_EVENT, onOpenRequest);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!open) return;
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") setOpenPath(null);
@@ -123,23 +132,8 @@ export function SocietySidebar({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 md:hidden">
-        <div className="min-w-0">
-          <p className="text-xs font-medium text-muted-foreground">{t("common.society")}</p>
-          <p className="truncate text-sm font-semibold text-foreground">{societyName}</p>
-        </div>
-        <button
-          type="button"
-          className="inline-flex h-11 items-center rounded-lg border border-border bg-background px-3 text-sm font-medium"
-          aria-expanded={open}
-          aria-controls="society-nav-drawer"
-          onClick={() => setOpenPath(pathname)}
-        >
-          {t("shell.openNav")}
-        </button>
-      </div>
       {open ? (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-[var(--theme-overlay)]"
@@ -151,22 +145,22 @@ export function SocietySidebar({
             role="dialog"
             aria-modal="true"
             aria-label={t("common.sections")}
-            className="absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
+            className="absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-sidebar-border bg-sidebar pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-sidebar-foreground shadow-xl"
           >
-            <div className="flex items-center justify-between gap-3 border-b border-sidebar-border px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-b border-sidebar-border bg-sidebar px-4 py-3">
               <p className="text-sm font-semibold">{t("common.sections")}</p>
               <button
                 type="button"
-                className="inline-flex h-10 items-center rounded-lg px-2 text-sm font-medium"
+                className="inline-flex h-11 items-center rounded-lg px-3 text-sm font-medium hover:bg-sidebar-accent"
                 onClick={() => setOpenPath(null)}
               >
                 {t("common.close")}
               </button>
             </div>
-            <div className="border-b border-sidebar-border px-3 py-3">
+            <div className="border-b border-sidebar-border bg-sidebar px-3 py-3">
               <SocietySwitcher societyId={societyId} societyName={societyName} />
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">{nav}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto bg-sidebar">{nav}</div>
           </div>
         </div>
       ) : null}

@@ -27,9 +27,9 @@ export default async function SessionExpiredPage({
 
   return (
     <StatusPage
-      code="Session"
-      title="Your session has expired"
-      description="Sign in again to continue. You will return to the page you were using when your session ended."
+      code="Signed out"
+      title="Please sign in again"
+      description="Your session ended for safety. After you sign in, we’ll bring you back to where you left off."
     >
       <Link
         href={`${signInPath}?next=${encodeURIComponent(next)}`}

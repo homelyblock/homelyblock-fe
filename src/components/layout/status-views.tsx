@@ -52,10 +52,12 @@ export function StatusPage({
   children?: ReactNode;
 }) {
   return (
-    <main id="main" className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
+    <main id="main" className="flex min-h-dvh items-center justify-center bg-background px-6 py-16">
       <div className="motion-rise w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <p className="text-sm font-medium tracking-wide text-forest uppercase">{code}</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <p className="text-sm font-medium text-muted-foreground">{code}</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          {title}
+        </h1>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
         {children ? <div className="mt-6 flex flex-wrap gap-3">{children}</div> : null}
       </div>

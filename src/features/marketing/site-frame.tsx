@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/features/marketing/mobile-nav";
@@ -12,10 +11,7 @@ import {
   footerLegalLinks,
   footerProductLinks,
   footerSupportLinks,
-  productNav,
 } from "@/features/marketing/site-nav";
-import { ThemeSwitcher } from "@/components/theme/theme-switcher";
-import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { useI18n } from "@/i18n/provider";
 
 type SiteHeaderProps = {
@@ -46,59 +42,13 @@ function marketingLabel(href: string, fallback: string, t: (key: string) => stri
 }
 
 export function SiteHeader({ signedIn }: SiteHeaderProps) {
-  const { t } = useI18n();
-  const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-card pt-[env(safe-area-inset-top)] backdrop-blur-md supports-[backdrop-filter]:bg-card/95">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Logo href="/" />
-        <nav aria-label="Primary" className="hidden items-center gap-5 text-[15px] lg:flex">
-          {productNav.map((link) => {
-            const active = !link.href.startsWith("/#") && pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? "page" : undefined}
-                className={
-                  active
-                    ? "font-medium text-foreground"
-                    : "font-medium text-muted-foreground hover:text-foreground"
-                }
-              >
-                {marketingLabel(link.href, link.label, t)}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="flex items-center gap-2">
-          <ThemeSwitcher className="hidden sm:inline-flex" />
-          <LanguageSwitcher />
-          {signedIn ? (
-            <Link
-              href="/societies"
-              className="inline-flex h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
-            >
-              {t("marketing.openApp")}
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/sign-in"
-                className="hidden h-11 items-center rounded-lg px-3 text-sm font-medium text-foreground hover:bg-accent lg:inline-flex"
-              >
-                {t("marketing.login")}
-              </Link>
-              <Link
-                href="/sign-up"
-                className="hidden h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)] lg:inline-flex"
-              >
-                {t("marketing.getStarted")}
-              </Link>
-            </>
-          )}
-          <MobileNav signedIn={signedIn} />
+    <header className="sticky top-0 z-30 border-b border-border bg-card pt-[env(safe-area-inset-top)] text-card-foreground">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-3 sm:px-6">
+        <div className="min-w-0">
+          <Logo href="/" />
         </div>
+        <MobileNav signedIn={signedIn} />
       </div>
     </header>
   );

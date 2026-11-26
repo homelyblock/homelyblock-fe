@@ -1,4 +1,5 @@
 import { getPublicConfig } from "@/config/public-env";
+import { userFacingMessage } from "@/lib/user-facing-message";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -11,7 +12,13 @@ export class ApiError extends Error {
     code?: string,
     details: string[] = [],
   ) {
-    super(message);
+    super(
+      userFacingMessage(message, {
+        status,
+        code,
+        details,
+      }),
+    );
     this.name = "ApiError";
     this.status = status;
     this.code = code;
