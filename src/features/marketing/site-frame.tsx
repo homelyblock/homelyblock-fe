@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/logo";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { MobileNav } from "@/features/marketing/mobile-nav";
 import { OpenCookiePreferences } from "@/features/marketing/cookie-consent";
 import { readOperatorIdentity } from "@/features/marketing/operator";
@@ -11,7 +12,9 @@ import {
   footerLegalLinks,
   footerProductLinks,
   footerSupportLinks,
+  productNav,
 } from "@/features/marketing/site-nav";
+import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { useI18n } from "@/i18n/provider";
 
 type SiteHeaderProps = {
@@ -42,13 +45,63 @@ function marketingLabel(href: string, fallback: string, t: (key: string) => stri
 }
 
 export function SiteHeader({ signedIn }: SiteHeaderProps) {
+  const { t } = useI18n();
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card pt-[env(safe-area-inset-top)] text-card-foreground">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-3 sm:px-6">
-        <div className="min-w-0">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-3 sm:px-6">
+        <div className="min-w-0 shrink-0">
           <Logo href="/" />
         </div>
-        <MobileNav signedIn={signedIn} />
+
+        {/* Website chrome: full nav on desktop. */}
+        <nav
+          aria-label={t("marketing.menu")}
+          className="ml-2 hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:gap-1 xl:gap-2 md:flex"
+        >
+          {productNav.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-lg px-2.5 py-2 text-sm font-medium text-foreground hover:bg-muted lg:px-3"
+            >
+              {marketingLabel(link.href, link.label, t)}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="ml-auto hidden shrink-0 items-center gap-2 md:flex">
+          <LanguageSwitcher className="max-w-28" />
+          <ThemeSwitcher />
+          {signedIn ? (
+            <Link
+              href="/societies"
+              className="inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
+            >
+              {t("marketing.openApp")}
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-lg px-4 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                {t("marketing.login")}
+              </Link>
+              <Link
+                href="/sign-up"
+                className="inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
+              >
+                {t("marketing.getStarted")}
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Phone / PWA: compact menu only. */}
+        <div className="ml-auto md:hidden">
+          <MobileNav signedIn={signedIn} />
+        </div>
       </div>
     </header>
   );

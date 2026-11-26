@@ -18,7 +18,7 @@ export async function AppFrame({ children }: AppFrameProps) {
           me.platformRole === "PLATFORM_OWNER" ? "/admin/sign-in" : "/sign-in"
         }
       />
-      <main id="main" className="pb-[env(safe-area-inset-bottom)]">
+      <main id="main" className="md:pb-[env(safe-area-inset-bottom)]">
         {children}
       </main>
     </div>

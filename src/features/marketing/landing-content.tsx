@@ -15,12 +15,14 @@ import {
 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/badge";
 import { Metric } from "@/features/dashboard/components/metric";
+import { HeroLivePulse } from "@/features/marketing/hero-live-pulse";
+// import { PlatformProofStrip } from "@/features/marketing/platform-proof-strip";
 import { useI18n } from "@/i18n/provider";
 
 const primaryLink =
-  "inline-flex h-12 items-center justify-center rounded-lg bg-primary px-5 text-base font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]";
+  "inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap rounded-lg bg-primary px-5 text-base font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]";
 const secondaryLink =
-  "inline-flex h-12 items-center justify-center rounded-lg border border-border bg-muted px-5 text-base font-medium text-foreground hover:bg-accent";
+  "inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-border bg-muted px-5 text-base font-medium text-foreground hover:bg-accent";
 const textLink = "inline-flex text-base font-medium text-accent-strong underline-offset-4 hover:underline";
 
 const PREVIEW_NAV: { key: string; icon: LucideIcon }[] = [
@@ -92,15 +94,24 @@ export function LandingContent({ signedIn }: { signedIn: boolean }) {
 
   return (
     <>
-      <section className="border-b border-border">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-24">
-          <div className="max-w-xl">
-            <p className="text-sm font-semibold text-primary">{t("landing.eyebrow")}</p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl sm:leading-[1.12]">
+      <section className="relative isolate overflow-hidden border-b border-border">
+        <div aria-hidden className="hero-atmosphere absolute inset-0" />
+        <div aria-hidden className="hero-grid absolute inset-0 opacity-70" />
+        <div className="relative mx-auto grid min-h-[min(36rem,88dvh)] w-full max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-8 lg:py-20">
+          <div className="motion-hero-copy max-w-xl">
+            <p className="text-[0.7rem] font-semibold tracking-[0.22em] text-primary uppercase">
+              {t("landing.eyebrow")}
+            </p>
+            <p className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl lg:text-[3.25rem]">
+              {t("landing.brand")}
+            </p>
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl sm:leading-snug">
               {t("landing.title")}
             </h1>
-            <p className="mt-5 text-base leading-7 text-foreground sm:text-lg sm:leading-8">{t("landing.subtitle")}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+              {t("landing.subtitle")}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href={primaryHref} className={primaryLink}>
                 {primaryLabel}
               </Link>
@@ -109,9 +120,13 @@ export function LandingContent({ signedIn }: { signedIn: boolean }) {
               </Link>
             </div>
           </div>
-          <WorkspacePreview variant="list" />
+          <div className="motion-hero-art relative w-full max-w-xl justify-self-end lg:max-w-none">
+            <HeroLivePulse />
+          </div>
         </div>
       </section>
+
+      {/* <PlatformProofStrip /> */}
 
       <Section>
         <SectionIntro eyebrow={t("landing.valueEyebrow")} title={t("landing.valueTitle")} />
@@ -261,13 +276,13 @@ export function LandingContent({ signedIn }: { signedIn: boolean }) {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href={primaryHref}
-              className="inline-flex h-12 items-center justify-center rounded-lg bg-forest-foreground px-5 text-base font-medium text-forest hover:bg-forest-foreground/90"
+              className="inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap rounded-lg bg-forest-foreground px-5 text-base font-medium text-forest hover:bg-forest-foreground/90"
             >
               {primaryLabel}
             </Link>
             <Link
               href="/contact"
-              className="inline-flex h-12 items-center justify-center rounded-lg border border-forest-foreground/40 px-5 text-base font-medium text-forest-foreground hover:bg-forest-foreground/10"
+              className="inline-flex h-12 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-forest-foreground/40 px-5 text-base font-medium text-forest-foreground hover:bg-forest-foreground/10"
             >
               {t("marketing.contact")}
             </Link>

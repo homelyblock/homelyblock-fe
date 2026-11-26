@@ -30,6 +30,7 @@ import {
   type NavGroup,
   type SocietyNavKey,
 } from "@/features/shell/nav-items";
+import { publishSocietyContext } from "@/features/shell/society-context-events";
 import { SOCIETY_NAV_OPEN_EVENT } from "@/features/shell/society-nav-events";
 import { fetchSocieties } from "@/features/societies/api";
 import { useI18n } from "@/i18n/provider";
@@ -98,6 +99,11 @@ export function SocietySidebar({
   const collapsed = useSyncExternalStore(subscribeSidebar, sidebarCollapsed, () => false);
 
   useEffect(() => {
+    publishSocietyContext({ id: societyId, name: societyName });
+    return () => publishSocietyContext(null);
+  }, [societyId, societyName]);
+
+  useEffect(() => {
     function onOpenRequest() {
       setOpenPath(pathname);
     }
@@ -144,11 +150,11 @@ export function SocietySidebar({
             id="society-nav-drawer"
             role="dialog"
             aria-modal="true"
-            aria-label={t("common.sections")}
-            className="absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-sidebar-border bg-sidebar pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-sidebar-foreground shadow-xl"
+            aria-label={t("shell.more")}
+            className="motion-drawer absolute inset-y-0 left-0 flex w-[min(20rem,88vw)] flex-col border-r border-sidebar-border bg-sidebar pt-[env(safe-area-inset-top)] pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-sidebar-foreground shadow-xl"
           >
             <div className="flex items-center justify-between gap-3 border-b border-sidebar-border bg-sidebar px-4 py-3">
-              <p className="text-sm font-semibold">{t("common.sections")}</p>
+              <p className="text-sm font-semibold">{t("shell.more")}</p>
               <button
                 type="button"
                 className="inline-flex h-11 items-center rounded-lg px-3 text-sm font-medium hover:bg-sidebar-accent"

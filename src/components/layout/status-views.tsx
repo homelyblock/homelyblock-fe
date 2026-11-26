@@ -28,14 +28,14 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card px-6 py-10 text-center">
-      <p className="text-base font-semibold text-foreground">{title}</p>
+    <div className="surface-card px-5 py-9 text-center sm:px-6 sm:py-10">
+      <p className="text-base font-semibold tracking-tight text-foreground">{title}</p>
       {description ? (
-        <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
           {description}
         </p>
       ) : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+      {action ? <div className="mt-5 flex flex-wrap justify-center gap-2">{action}</div> : null}
     </div>
   );
 }

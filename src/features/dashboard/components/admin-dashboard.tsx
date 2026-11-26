@@ -55,6 +55,16 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
       ? `${data.maintenance.periodYear}-${String(data.maintenance.periodMonth).padStart(2, "0")}`
       : t("dashboard.noPeriod");
 
+  const updatedLabel =
+    query.dataUpdatedAt > 0
+      ? t("dashboard.updatedAt", {
+          time: new Date(query.dataUpdatedAt).toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        })
+      : null;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -62,20 +72,21 @@ export function AdminDashboardPanel({ societyId }: AdminDashboardProps) {
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {t("dashboard.adminSubtitle", { period })}
           </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-            {data.society.name}
-          </h1>
+          <h1 className="page-title mt-1">{data.society.name}</h1>
+          {updatedLabel ? (
+            <p className="mt-1 text-xs text-muted-foreground">{updatedLabel}</p>
+          ) : null}
         </div>
         <StatusBadge value={data.society.status} />
       </div>
+
+      <AttentionPanel societyId={societyId} />
 
       <QuickActions
         societyId={societyId}
         actions={data.quickActions}
         catalog={ADMIN_ACTION_LINKS}
       />
-
-      <AttentionPanel societyId={societyId} />
 
       <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <DashboardSection title={t("dashboard.communitySnapshot")}>
@@ -229,11 +240,13 @@ function AttentionPanel({ societyId }: { societyId: string }) {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-base font-semibold tracking-tight">{t("dashboard.attention")}</h2>
+      <h2 className="text-base font-semibold tracking-tight text-foreground">
+        {t("dashboard.attention")}
+      </h2>
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : items.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+        <p className="surface-card px-4 py-3 text-sm text-muted-foreground">
           {t("dashboard.nothingWaiting")}
         </p>
       ) : (
@@ -242,10 +255,10 @@ function AttentionPanel({ societyId }: { societyId: string }) {
             <li key={item.key}>
               <Link
                 href={item.href}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm hover:bg-muted/60"
+                className="surface-card flex items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-muted/60"
               >
-                <span className="font-medium">{item.label}</span>
-                <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-xs font-semibold text-primary-foreground">
+                <span className="font-medium text-foreground">{item.label}</span>
+                <span className="attention-chip">
                   {item.count > 99 ? "99+" : item.count}
                 </span>
               </Link>

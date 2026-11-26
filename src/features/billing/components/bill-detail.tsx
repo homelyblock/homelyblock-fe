@@ -324,66 +324,117 @@ export function BillDetailView({
           </p>
         </div>
 
-        <div className="max-w-full overflow-x-auto">
-        <table className="w-full min-w-[20rem] text-left text-sm">
-          <thead>
-            <tr className="border-b border-border bg-table-header text-foreground">
-              <th className="py-2 font-medium">{t("detail.description")}</th>
-              <th className="py-2 text-right font-medium">{t("detail.amount")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(bill.lineItems ?? []).map((item) => (
-              <tr key={item.id} className="border-b border-border">
-                <td className="py-2 text-foreground">{item.description}</td>
-                <td className="py-2 text-right text-foreground">
-                  {item.lineType === "DISCOUNT" ? "-" : ""}
-                  {formatMoney(item.amount)}
-                </td>
+        <ul className="space-y-2 sm:hidden">
+          {(bill.lineItems ?? []).map((item) => (
+            <li
+              key={item.id}
+              className="flex items-start justify-between gap-3 border-b border-border py-2 text-sm last:border-0"
+            >
+              <span className="text-foreground">{item.description}</span>
+              <span className="shrink-0 tabular-nums text-foreground">
+                {item.lineType === "DISCOUNT" ? "-" : ""}
+                {formatMoney(item.amount)}
+              </span>
+            </li>
+          ))}
+          {(bill.lineItems?.length ?? 0) === 0 ? (
+            <>
+              <li className="flex items-start justify-between gap-3 border-b border-border py-2 text-sm">
+                <span>{t("detail.baseMaintenance")}</span>
+                <span className="shrink-0 tabular-nums">
+                  {formatMoney(bill.baseAmount)}
+                </span>
+              </li>
+              {Number(bill.additionalAmount) > 0 ? (
+                <li className="flex items-start justify-between gap-3 border-b border-border py-2 text-sm">
+                  <span>{t("detail.additionalCharges")}</span>
+                  <span className="shrink-0 tabular-nums">
+                    {formatMoney(bill.additionalAmount)}
+                  </span>
+                </li>
+              ) : null}
+              {Number(bill.discountAmount) > 0 ? (
+                <li className="flex items-start justify-between gap-3 border-b border-border py-2 text-sm">
+                  <span>{t("detail.discount")}</span>
+                  <span className="shrink-0 tabular-nums">
+                    -{formatMoney(bill.discountAmount)}
+                  </span>
+                </li>
+              ) : null}
+            </>
+          ) : null}
+          <li className="flex items-start justify-between gap-3 pt-2 text-sm font-semibold">
+            <span>{t("detail.total")}</span>
+            <span className="tabular-nums">{formatMoney(bill.totalAmount)}</span>
+          </li>
+          <li className="flex items-start justify-between gap-3 text-sm">
+            <span>{t("detail.paid")}</span>
+            <span className="tabular-nums">{formatMoney(bill.paidAmount)}</span>
+          </li>
+        </ul>
+
+        <div className="hidden max-w-full overflow-x-auto sm:block">
+          <table className="w-full min-w-[20rem] text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-table-header text-foreground">
+                <th className="py-2 font-medium">{t("detail.description")}</th>
+                <th className="py-2 text-right font-medium">{t("detail.amount")}</th>
               </tr>
-            ))}
-            {(bill.lineItems?.length ?? 0) === 0 ? (
-              <>
-                <tr className="border-b border-border">
-                  <td className="py-2">{t("detail.baseMaintenance")}</td>
-                  <td className="py-2 text-right">
-                    {formatMoney(bill.baseAmount)}
+            </thead>
+            <tbody>
+              {(bill.lineItems ?? []).map((item) => (
+                <tr key={item.id} className="border-b border-border">
+                  <td className="py-2 text-foreground">{item.description}</td>
+                  <td className="py-2 text-right text-foreground">
+                    {item.lineType === "DISCOUNT" ? "-" : ""}
+                    {formatMoney(item.amount)}
                   </td>
                 </tr>
-                {Number(bill.additionalAmount) > 0 ? (
+              ))}
+              {(bill.lineItems?.length ?? 0) === 0 ? (
+                <>
                   <tr className="border-b border-border">
-                    <td className="py-2">{t("detail.additionalCharges")}</td>
+                    <td className="py-2">{t("detail.baseMaintenance")}</td>
                     <td className="py-2 text-right">
-                      {formatMoney(bill.additionalAmount)}
+                      {formatMoney(bill.baseAmount)}
                     </td>
                   </tr>
-                ) : null}
-                {Number(bill.discountAmount) > 0 ? (
-                  <tr className="border-b border-border">
-                    <td className="py-2">{t("detail.discount")}</td>
-                    <td className="py-2 text-right">
-                      -{formatMoney(bill.discountAmount)}
-                    </td>
-                  </tr>
-                ) : null}
-              </>
-            ) : null}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td className="pt-3 font-semibold text-foreground">{t("detail.total")}</td>
-              <td className="pt-3 text-right font-semibold text-foreground">
-                {formatMoney(bill.totalAmount)}
-              </td>
-            </tr>
-            <tr>
-              <td className="pt-1 text-foreground">{t("detail.paid")}</td>
-              <td className="pt-1 text-right text-foreground">
-                {formatMoney(bill.paidAmount)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+                  {Number(bill.additionalAmount) > 0 ? (
+                    <tr className="border-b border-border">
+                      <td className="py-2">{t("detail.additionalCharges")}</td>
+                      <td className="py-2 text-right">
+                        {formatMoney(bill.additionalAmount)}
+                      </td>
+                    </tr>
+                  ) : null}
+                  {Number(bill.discountAmount) > 0 ? (
+                    <tr className="border-b border-border">
+                      <td className="py-2">{t("detail.discount")}</td>
+                      <td className="py-2 text-right">
+                        -{formatMoney(bill.discountAmount)}
+                      </td>
+                    </tr>
+                  ) : null}
+                </>
+              ) : null}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td className="pt-3 font-semibold text-foreground">
+                  {t("detail.total")}
+                </td>
+                <td className="pt-3 text-right font-semibold text-foreground">
+                  {formatMoney(bill.totalAmount)}
+                </td>
+              </tr>
+              <tr>
+                <td className="pt-1 text-foreground">{t("detail.paid")}</td>
+                <td className="pt-1 text-right text-foreground">
+                  {formatMoney(bill.paidAmount)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </article>
 

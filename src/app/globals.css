@@ -60,6 +60,7 @@
   /* Evergreen & Ivory. 60% ivory canvas, 30% white surfaces, 10% evergreen actions. */
   --theme-bg: #f7f6f0;
   --theme-surface: #ffffff;
+  --theme-surface-raised: #ffffff;
   --theme-surface-muted: #f0f1ec;
   --theme-table-header: #f0f1ec;
   --theme-forest: #244c3a;
@@ -82,8 +83,13 @@
   --theme-warning: #8a5a12;
   --theme-danger: #9f2d2d;
   --theme-info: #3d5563;
+  /* Single “needs action” accent — warm, not neon. */
+  --theme-attention: #8a5a12;
+  --theme-attention-soft: color-mix(in srgb, var(--theme-attention) 12%, var(--theme-surface));
   --theme-overlay: color-mix(in srgb, #303b35 48%, transparent);
   --theme-shadow: 0 1px 2px color-mix(in srgb, #303b35 6%, transparent);
+  --theme-shadow-raised: 0 1px 2px color-mix(in srgb, #303b35 5%, transparent),
+    0 8px 24px color-mix(in srgb, #303b35 6%, transparent);
 
   --background: var(--theme-bg);
   --foreground: var(--theme-text);
@@ -124,6 +130,7 @@
   /* Same roles on a deep evergreen field. Primary flips to sage so buttons and links stay readable. */
   --theme-bg: #121916;
   --theme-surface: #1c2621;
+  --theme-surface-raised: #24302a;
   --theme-surface-muted: #24302a;
   --theme-table-header: #24302a;
   --theme-forest: #244c3a;
@@ -140,13 +147,18 @@
   --theme-text: #f7f6f0;
   --theme-text-secondary: #c5d1c9;
   --theme-muted: var(--theme-text-secondary);
-  --theme-border: #6a7c72;
+  /* Softer than mid-grey so cards separate from the canvas without harsh lines. */
+  --theme-border: #3f4f47;
   --theme-success: #8fceaa;
   --theme-warning: #e3c07a;
   --theme-danger: #f0b0b0;
   --theme-info: #a9c3d2;
+  --theme-attention: #e3c07a;
+  --theme-attention-soft: color-mix(in srgb, var(--theme-attention) 16%, var(--theme-surface));
   --theme-overlay: color-mix(in srgb, #070c09 64%, transparent);
   --theme-shadow: 0 1px 2px color-mix(in srgb, #000 35%, transparent);
+  --theme-shadow-raised: 0 1px 2px color-mix(in srgb, #000 40%, transparent),
+    0 10px 28px color-mix(in srgb, #000 28%, transparent);
 
   --background: var(--theme-bg);
   --foreground: var(--theme-text);
@@ -171,7 +183,7 @@
   --chart-3: var(--theme-info);
   --chart-4: var(--theme-success);
   --chart-5: var(--theme-warning);
-  --sidebar: #1c2621;
+  --sidebar: var(--theme-surface-raised);
   --sidebar-foreground: var(--theme-text);
   --sidebar-primary: var(--theme-primary);
   --sidebar-primary-foreground: var(--theme-primary-foreground);
@@ -247,6 +259,50 @@
   main :where(a.rounded-lg.border.bg-card, a.rounded-xl.border.bg-card):hover {
     border-color: color-mix(in srgb, var(--theme-accent-strong) 45%, var(--theme-border));
   }
+
+  .surface-card {
+    background: var(--theme-surface);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--theme-shadow);
+  }
+
+  .surface-raised {
+    background: var(--theme-surface-raised);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--theme-shadow-raised);
+  }
+
+  .page-title {
+    font-size: 1.375rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--theme-text);
+  }
+
+  @media (min-width: 640px) {
+    .page-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  .attention-chip {
+    display: inline-flex;
+    min-height: 1.5rem;
+    min-width: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--theme-attention-soft);
+    color: var(--theme-attention);
+    padding-inline: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
 }
 
 @keyframes rise-in {
@@ -270,7 +326,84 @@
 }
 
 .motion-rise {
-  animation: rise-in 0.45s ease both;
+  animation: rise-in 0.28s ease both;
+}
+
+.motion-drawer {
+  animation: rise-in 0.22s ease both;
+}
+
+.motion-hero-copy {
+  animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion-hero-art {
+  animation: rise-in 0.7s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.motion-hero-proof {
+  animation: fade-in 0.6s 0.2s ease both;
+}
+
+@keyframes hero-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes hero-bar-rise {
+  from {
+    transform: scaleY(0.15);
+    opacity: 0.35;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes hero-chart-draw {
+  from {
+    stroke-dashoffset: 420;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hero-art-drift {
+  animation: hero-drift 5.5s ease-in-out infinite alternate;
+}
+
+.hero-art-drift-slow {
+  animation: hero-drift 7s ease-in-out infinite alternate-reverse;
+}
+
+.hero-chart-draw {
+  stroke-dasharray: 420;
+  animation: hero-chart-draw 1.4s 0.2s ease forwards;
+}
+
+.hero-chart-fade {
+  animation: fade-in 1s 0.35s ease both;
+}
+
+.hero-atmosphere {
+  background:
+    radial-gradient(ellipse 70% 55% at 85% 20%, color-mix(in srgb, var(--theme-sage) 70%, transparent), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 8% 90%, color-mix(in srgb, var(--theme-forest) 12%, transparent), transparent 65%),
+    linear-gradient(165deg, var(--theme-bg) 0%, color-mix(in srgb, var(--theme-sage) 28%, var(--theme-bg)) 48%, var(--theme-bg) 100%);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--theme-forest) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--theme-forest) 6%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 75% 70% at 70% 45%, #000 20%, transparent 75%);
 }
 
 a:focus-visible,

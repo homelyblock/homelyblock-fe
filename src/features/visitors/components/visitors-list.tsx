@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { EmptyState } from "@/components/layout/status-views";
 import { StatusBadge } from "@/components/ui/badge";
 import { filterControlClassName } from "@/components/ui/control";
 import { ListPager } from "@/components/ui/list-pager";
@@ -127,9 +128,33 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
         </p>
       ) : null}
       {!query.isLoading && !query.isError && visitors.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {status ? "No visitors match this filter." : "No visitors found."}
-        </p>
+        <EmptyState
+          title={status ? t("work.noVisitorsFilter") : t("work.noVisitorsEmpty")}
+          description={
+            status
+              ? t("work.noVisitorsFilterHint")
+              : canManage
+                ? t("work.noVisitorsAdminHint")
+                : t("work.noVisitorsResidentHint")
+          }
+          action={
+            canManage ? (
+              <Link
+                href={`/societies/${societyId}/visitors/walk-in`}
+                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
+              >
+                Register walk-in
+              </Link>
+            ) : (
+              <Link
+                href={`/societies/${societyId}/visitors/expected`}
+                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-[var(--theme-primary-hover)]"
+              >
+                Register visitor
+              </Link>
+            )
+          }
+        />
       ) : null}
 
       {visitors.length > 0 ? (
@@ -147,7 +172,7 @@ export function VisitorsList({ societyId, canManage }: VisitorsListProps) {
                     </p>
                     <StatusBadge value={visitor.status} />
                     {visitor.status === "PENDING" ? (
-                      <span className="rounded bg-warning/10 px-1.5 py-0.5 text-[11px] font-medium text-warning">
+                      <span className="attention-chip text-[11px]">
                         Needs approval
                       </span>
                     ) : null}

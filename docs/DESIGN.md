@@ -29,6 +29,8 @@ Implemented in `homelyblock-fe/src/app/globals.css`. The balance is 60% ivory ca
 - Warning: `#8A5A12`
 - Error: `#9F2D2D`
 - Info: `#3D5563`
+- Attention (needs action): same warm family as warning (`--theme-attention`); use soft tint chips, not neon badges
+- Raised surface (dark): slightly lighter than the base card so drawers and sheets separate from the canvas
 
 The specified secondary text `#68756B` is 4.46:1 on ivory and 4.26:1 on the table header, below WCAG AA. The text token stays in that green-grey hue and is darkened to `#5C675E` so secondary copy clears 4.5:1 on ivory, white, sage, and table headers.
 

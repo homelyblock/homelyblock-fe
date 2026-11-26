@@ -9,11 +9,42 @@ type MetricProps = {
 
 export function Metric({ label, value, hint }: MetricProps) {
   return (
-    <div className="rounded-xl border border-border bg-card px-4 py-3">
+    <div className="surface-card px-4 py-3">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground tabular-nums">{value}</p>
+      <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground tabular-nums">
+        {value}
+      </p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
+  );
+}
+
+type LinkMetricProps = MetricProps & {
+  href: string;
+  emphasize?: boolean;
+};
+
+export function LinkMetric({ label, value, hint, href, emphasize }: LinkMetricProps) {
+  return (
+    <Link
+      href={href}
+      className="surface-card block px-4 py-3 transition-colors hover:bg-muted/50"
+      style={
+        emphasize
+          ? { background: "var(--theme-attention-soft)" }
+          : undefined
+      }
+    >
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p
+        className={`mt-1 text-2xl font-semibold tracking-tight tabular-nums ${
+          emphasize ? "text-[var(--theme-attention)]" : "text-foreground"
+        }`}
+      >
+        {value}
+      </p>
+      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+    </Link>
   );
 }
 
@@ -49,7 +80,7 @@ export function RecordLink({
   return (
     <Link
       href={href}
-      className="block rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground hover:bg-muted/50"
+      className="surface-card block px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted/50"
     >
       {children}
     </Link>

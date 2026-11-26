@@ -7,7 +7,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
   const { locale, setLocale, t } = useI18n();
 
   return (
-    <label className="inline-flex w-full min-w-0 items-center">
+    <label className="inline-flex min-w-0 shrink-0 items-center">
       <span className="sr-only">{t("language.label")}</span>
       <select
         aria-label={t("language.label")}

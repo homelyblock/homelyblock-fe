@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { usePwaOptional } from "@/features/pwa/pwa-provider";
+import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { useI18n } from "@/i18n/provider";
 import { userInitials } from "@/lib/user-initials";
 
@@ -87,6 +89,10 @@ export function AccountMenu({
           >
             {t("nav.profile")}
           </Link>
+          <div className="mt-1 space-y-2 border-t border-border px-2 pt-2 md:hidden">
+            <LanguageSwitcher className="h-10 w-full max-w-none" />
+            <ThemeSwitcher className="h-10 w-full max-w-none" />
+          </div>
           {pwa?.canInstall ? (
             <button
               type="button"
